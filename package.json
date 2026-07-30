@@ -1,0 +1,15 @@
+{
+  "name": "nx-bun-workspace",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Workspace for the nx-bun plugin and example apps",
+  "license": "MIT",
+  "type": "commonjs",
+  "workspaces": ["packages/*"],
+  "devDependencies": {
+    "nx": "23.1.0",
+    "@nx/devkit": "23.1.0",
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "example-app",
+  "root": "packages/example-app",
+  "sourceRoot": "src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx-bun:run",
+      "dependsOn": [
+        {
+          "projects": "nx-bun",
+          "target": "build"
+        }
+      ],
+      "options": {
+        "entry": "src/main.ts"
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "title": "nx-bun run executor",
+  "type": "object",
+  "properties": {
+    "script": {
+      "type": "string",
+      "description": "Bun script name to run via bun run <script>"
+    },
+    "entry": {
+      "type": "string",
+      "description": "Bun entry file or subcommand to run directly"
+    },
+    "buildTarget": {
+      "type": "string",
+      "description": "Optional Nx target to run before Bun starts"
+    },
+    "args": {
+      "type": "array",
+      "description": "Additional arguments passed to Bun",
+      "items": {
+        "type": "string"
+      }
+    },
+    "runtimeArgs": {
+      "type": "array",
+      "description": "Additional arguments passed to the Bun runtime before the script or entry",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cwd": {
+      "type": "string",
+      "description": "Working directory for the Bun process"
+    },
+    "bunPath": {
+      "type": "string",
+      "description": "Explicit path to the Bun binary"
+    },
+    "env": {
+      "type": "object",
+      "description": "Additional environment variables",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "watch": {
+      "type": "boolean",
+      "description": "Hint that the process is long-running or watch-oriented"
+    }
+  },
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "required": ["script"],
+      "not": {
+        "required": ["entry"]
+      }
+    },
+    {
+      "required": ["entry"],
+      "not": {
+        "required": ["script"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "nx-bun",
+  "root": "packages/nx-bun",
+  "sourceRoot": "src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build"
+      }
+    },
+    "clean": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "clean"
+      }
+    },
+    "selftest-source": {
+      "executor": "nx-bun:run",
+      "dependsOn": ["build"],
+      "options": {
+        "entry": "tests/selftest-source.ts"
+      }
+    },
+    "selftest": {
+      "executor": "nx-bun:run",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "build",
+        "entry": "tests/selftest-source.ts"
+      }
+    },
+    "test": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "test"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "typecheck"
+      }
+    }
+  }
+}

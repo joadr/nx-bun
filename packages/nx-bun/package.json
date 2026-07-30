@@ -1,0 +1,40 @@
+{
+  "name": "nx-bun",
+  "version": "0.0.1",
+  "private": true,
+  "description": "An Nx plugin for Bun",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "executors": "./executors.json",
+  "generators": "./generators.json",
+  "migrations": "./migrations.json",
+  "files": [
+    "dist",
+    "executors.json",
+    "generators.json",
+    "migrations.json"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "test": "bun test",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "keywords": [
+    "nx",
+    "bun",
+    "plugin",
+    "executor"
+  ],
+  "peerDependencies": {
+    "nx": "23.1.0"
+  },
+  "devDependencies": {
+    "nx": "23.1.0",
+    "@nx/devkit": "23.1.0",
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2"
+  }
+}

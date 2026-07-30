@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "version": 2,
+  "executors": {
+    "run": {
+      "implementation": "./dist/executors/run/executor.js",
+      "schema": "./src/executors/run/schema.json",
+      "description": "Run Bun scripts or entry files"
+    }
+  }
+}
