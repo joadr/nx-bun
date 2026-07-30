@@ -40,6 +40,10 @@ As a user, I want to run Bun entry files with explicit runtime and application a
 
 As a user, I want Bun to run after a build target when I need compiled output, but skip the build when I want to run source directly.
 
+### Watch mode
+
+As a user, I want the `serve` target to keep rebuilding and restarting when source files change.
+
 ### Reusable plugin foundation
 
 As a maintainer, I want `run` to provide shared Bun execution behavior so other executors can reuse it consistently.
@@ -181,6 +185,7 @@ Initial proposal:
 | `buildTarget` | `string` | no | Nx target to run before Bun starts |
 | `runtimeArgs` | `string[]` | no | Extra arguments passed to Bun before the script or entry |
 | `args` | `string[]` | no | Extra arguments appended after script or entry |
+| `watch` | `boolean` | no | Add Bun watch mode when launching an entry or built output |
 | `cwd` | `string` | no | Working directory relative to workspace root or absolute path |
 | `bunPath` | `string` | no | Explicit Bun binary path if auto-resolution is not desired |
 | `env` | `Record<string, string>` | no | Extra environment variables for the spawned process |

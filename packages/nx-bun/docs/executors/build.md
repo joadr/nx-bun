@@ -20,6 +20,7 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 * `naming`: output naming pattern
 * `publicPath`: runtime asset prefix
 * `useCli`: force CLI mode
+* `watch`: keep rebuilding on file changes
 
 ## Expected behavior
 
@@ -27,3 +28,4 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 * build artifacts into the declared output directory
 * preserve a simple option surface
 * return `success: false` on build failure
+* support watch mode for continuous rebuilds

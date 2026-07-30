@@ -40,6 +40,10 @@ test('buildCommandArguments preserves bun invocation shape', () => {
         'src/main.ts',
         '--foo',
     ]);
+    expect(buildCommandArguments({ entry: 'src/main.ts', watch: true })).toEqual([
+        '--watch',
+        'src/main.ts',
+    ]);
 });
 
 test('resolveWorkingDirectory prefers project root and explicit cwd', () => {

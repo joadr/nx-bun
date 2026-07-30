@@ -15,6 +15,7 @@ export interface BuildExecutorOptions {
     naming?: string;
     publicPath?: string;
     useCli?: boolean;
+    watch?: boolean;
 }
 
 function isNonEmptyString(value: unknown): value is string {
@@ -62,6 +63,10 @@ function resolveEntrypoints(options: BuildExecutorOptions, context: ExecutorCont
 
 function buildCliArgs(options: BuildExecutorOptions): string[] {
     const args = ['build', ...options.entrypoints];
+
+    if (options.watch) {
+        args.push('--watch');
+    }
 
     if (options.external) {
         for (const external of options.external) {
@@ -145,6 +150,7 @@ async function runApi(options: BuildExecutorOptions, context: ExecutorContext): 
         define: options.define,
         naming: options.naming,
         publicPath: options.publicPath,
+        watch: options.watch,
     });
 
     for (const log of result.logs ?? []) {
@@ -162,9 +168,9 @@ export default async function buildExecutor(
 ): Promise<{ success: boolean }> {
     validateOptions(options);
 
-    const success = options.useCli ? await runCli(options, context) : await runApi(options, context);
+    const success = options.useCli || options.watch ? await runCli(options, context) : await runApi(options, context);
 
-    if (!success && !options.useCli) {
+    if (!success && !options.useCli && !options.watch) {
         return { success: await runCli(options, context) };
     }
 

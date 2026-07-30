@@ -9,10 +9,10 @@ export interface RunExecutorOptions {
     buildTarget?: string;
     args?: string[];
     runtimeArgs?: string[];
+    watch?: boolean;
     cwd?: string;
     bunPath?: string;
     env?: Record<string, string>;
-    watch?: boolean;
 }
 
 function isNonEmptyString(value: unknown): value is string {
@@ -48,6 +48,10 @@ export function validateOptions(options: RunExecutorOptions): void {
         throw new Error('"buildTarget" must be a non-empty string when provided.');
     }
 
+    if (options.watch !== undefined && typeof options.watch !== 'boolean') {
+        throw new Error('"watch" must be a boolean when provided.');
+    }
+
     if (options.cwd !== undefined && !isNonEmptyString(options.cwd)) {
         throw new Error('"cwd" must be a non-empty string when provided.');
     }
@@ -67,7 +71,7 @@ export function validateOptions(options: RunExecutorOptions): void {
 
 export function buildCommandArguments(options: RunExecutorOptions): string[] {
     const args = options.args ?? [];
-    const runtimeArgs = options.runtimeArgs ?? [];
+    const runtimeArgs = options.watch ? ['--watch', ...(options.runtimeArgs ?? [])] : (options.runtimeArgs ?? []);
 
     if (isNonEmptyString(options.script)) {
         return [...runtimeArgs, 'run', options.script, ...args];

@@ -64,6 +64,10 @@
     "useCli": {
       "type": "boolean",
       "description": "Force the CLI path instead of Bun.build()"
+    },
+    "watch": {
+      "type": "boolean",
+      "description": "Keep rebuilding when files change"
     }
   },
   "required": ["entrypoints", "outputPath"],

@@ -7,17 +7,34 @@
   "targets": {
     "build": {
       "executor": "nx-bun:build",
+      "continuous": true,
       "options": {
         "entrypoints": ["src/main.ts"],
-        "outputPath": "dist"
+        "outputPath": "dist",
+        "watch": true
       },
       "outputs": ["{projectRoot}/dist/main.js"]
     },
     "serve": {
       "executor": "nx-bun:run",
       "continuous": true,
+      "dependsOn": [
+        {
+          "projects": "example-app",
+          "target": "build"
+        }
+      ],
       "options": {
-        "buildTarget": "example-app:build"
+        "buildTarget": "example-app:build",
+        "watch": true
+      }
+    },
+    "serve-source": {
+      "executor": "nx-bun:run",
+      "continuous": true,
+      "options": {
+        "entry": "src/main.ts",
+        "watch": true
       }
     }
   }

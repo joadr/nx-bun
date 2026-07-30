@@ -87,7 +87,7 @@ export default async function runExecutor(
 ): Promise<{ success: boolean }> {
     validateOptions(options);
 
-    if (options.buildTarget) {
+    if (options.buildTarget && !options.watch) {
         const buildSuccess = await runBuildTarget(options.buildTarget, context);
 
         if (!buildSuccess) {
