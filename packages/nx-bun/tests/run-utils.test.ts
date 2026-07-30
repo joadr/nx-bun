@@ -18,12 +18,13 @@ test('validateOptions accepts one script or entry', () => {
 
 test('validateOptions accepts buildTarget and runtime args', () => {
     expect(() => validateOptions({ script: 'dev', buildTarget: 'build', runtimeArgs: ['--watch'] })).not.toThrow();
+    expect(() => validateOptions({ buildTarget: 'build' })).not.toThrow();
 });
 
 test('validateOptions rejects ambiguous options', () => {
-    expect(() => validateOptions({})).toThrow('Exactly one of "script" or "entry" must be provided.');
+    expect(() => validateOptions({})).toThrow('Provide either "script", "entry", or "buildTarget".');
     expect(() => validateOptions({ script: 'dev', entry: 'src/main.ts' })).toThrow(
-        'Exactly one of "script" or "entry" must be provided.',
+        'Only one of "script" or "entry" may be provided.',
     );
 });
 

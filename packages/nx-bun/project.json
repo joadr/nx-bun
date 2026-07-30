@@ -7,6 +7,7 @@
   "targets": {
     "build": {
       "executor": "nx:run-script",
+      "outputs": ["{projectRoot}/dist/index.js"],
       "options": {
         "script": "build"
       }
@@ -28,8 +29,7 @@
       "executor": "nx-bun:run",
       "dependsOn": ["build"],
       "options": {
-        "buildTarget": "build",
-        "entry": "tests/selftest-source.ts"
+        "buildTarget": "build"
       }
     },
     "test": {

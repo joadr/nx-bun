@@ -62,6 +62,19 @@
       "not": {
         "required": ["script"]
       }
+    },
+    {
+      "required": ["buildTarget"],
+      "not": {
+        "anyOf": [
+          {
+            "required": ["script"]
+          },
+          {
+            "required": ["entry"]
+          }
+        ]
+      }
     }
   ]
 }

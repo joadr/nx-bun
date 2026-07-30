@@ -1,5 +1,7 @@
 import { ExecutorContext } from '@nx/devkit';
 import { parseTargetString } from '@nx/devkit';
+import fs from 'node:fs';
+import path from 'node:path';
 import {
     buildCommandArguments,
     executeBunCommand,
@@ -33,6 +35,52 @@ async function runBuildTarget(buildTarget: string, context: ExecutorContext): Pr
     }
 }
 
+function resolveEntryFromBuildTarget(buildTarget: string, context: ExecutorContext): string | undefined {
+    const targetDescription = parseTargetString(buildTarget, context);
+    const projectsConfigurations = (context as {
+        projectsConfigurations?: { projects?: Record<string, { root: string; targets?: Record<string, { outputs?: string[] }> }> };
+    }).projectsConfigurations;
+    const project = projectsConfigurations?.projects?.[targetDescription.project];
+    const outputs = project?.targets?.[targetDescription.target]?.outputs ?? [];
+
+    if (outputs.length === 0) {
+        return undefined;
+    }
+
+    const workspaceRoot = path.resolve(context.root ?? '.');
+    const projectRoot = path.resolve(workspaceRoot, project?.root ?? '.');
+
+    for (const output of outputs) {
+        const resolved = output
+            .replaceAll('{workspaceRoot}', workspaceRoot)
+            .replaceAll('{projectRoot}', projectRoot);
+        const candidate = path.isAbsolute(resolved) ? resolved : path.resolve(workspaceRoot, resolved);
+
+        if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+            return candidate;
+        }
+
+        if (fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) {
+            const mainJs = path.join(candidate, 'main.js');
+            const indexJs = path.join(candidate, 'index.js');
+
+            if (fs.existsSync(mainJs)) {
+                return mainJs;
+            }
+
+            if (fs.existsSync(indexJs)) {
+                return indexJs;
+            }
+        }
+
+        if (candidate.endsWith('.js') || candidate.endsWith('.mjs') || candidate.endsWith('.cjs')) {
+            return candidate;
+        }
+    }
+
+    return undefined;
+}
+
 export default async function runExecutor(
     options: RunExecutorOptions,
     context: ExecutorContext,
@@ -47,8 +95,19 @@ export default async function runExecutor(
         }
     }
 
+    const resolvedEntry =
+        options.entry ?? (options.buildTarget ? resolveEntryFromBuildTarget(options.buildTarget, context) : undefined);
+
+    if (!options.script && !resolvedEntry) {
+        throw new Error(
+            options.buildTarget
+                ? `Unable to infer a Bun entry point from build target "${options.buildTarget}" outputs.`
+                : 'A Bun entry point could not be resolved.',
+        );
+    }
+
     const bunBinary = resolveBunBinary(options);
-    const commandArgs = buildCommandArguments(options);
+    const commandArgs = buildCommandArguments({ ...options, entry: resolvedEntry });
     const cwd = resolveWorkingDirectory(options, context);
     const env = mergeEnvironment(options);
 

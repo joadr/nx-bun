@@ -22,9 +22,14 @@ function isNonEmptyString(value: unknown): value is string {
 export function validateOptions(options: RunExecutorOptions): void {
     const hasScript = isNonEmptyString(options.script);
     const hasEntry = isNonEmptyString(options.entry);
+    const hasBuildTarget = isNonEmptyString(options.buildTarget);
 
-    if (hasScript === hasEntry) {
-        throw new Error('Exactly one of "script" or "entry" must be provided.');
+    if (hasScript && hasEntry) {
+        throw new Error('Only one of "script" or "entry" may be provided.');
+    }
+
+    if (!hasScript && !hasEntry && !hasBuildTarget) {
+        throw new Error('Provide either "script", "entry", or "buildTarget".');
     }
 
     if (options.args !== undefined) {
