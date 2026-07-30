@@ -18,3 +18,5 @@ The goal of this project is to make Bun feel like a first-class citizen in Nx by
 Early implementation phase.
 
 The repo is wired as an Nx workspace and now includes a working `run` executor smoke test.
+
+It also includes an API-first `build` executor with CLI fallback for Bun bundles.

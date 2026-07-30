@@ -2,6 +2,11 @@
   "$schema": "https://json-schema.org/schema",
   "version": 2,
   "executors": {
+    "build": {
+      "implementation": "./dist/executors/build/executor.js",
+      "schema": "./src/executors/build/schema.json",
+      "description": "Build Bun bundles"
+    },
     "run": {
       "implementation": "./dist/executors/run/executor.js",
       "schema": "./src/executors/run/schema.json",

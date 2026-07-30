@@ -6,10 +6,10 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "nx-bun:run",
+      "executor": "nx-bun:build",
       "options": {
-        "entry": "build",
-        "args": ["src/main.ts", "--outdir", "dist"]
+        "entrypoints": ["src/main.ts"],
+        "outputPath": "dist"
       },
       "outputs": ["{projectRoot}/dist/main.js"]
     },

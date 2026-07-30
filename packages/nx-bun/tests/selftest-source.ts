@@ -3,7 +3,7 @@ import runExecutor from '../src/executors/run/executor';
 async function main(): Promise<void> {
     const result = await runExecutor(
         {
-            entry: '../example-app/src/main.ts',
+            entry: 'tests/selftest-entry.ts',
         },
         {
             root: '.',

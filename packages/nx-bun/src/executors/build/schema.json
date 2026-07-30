@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "title": "nx-bun build executor",
+  "type": "object",
+  "properties": {
+    "entrypoints": {
+      "type": "array",
+      "description": "Bun entrypoints to build",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "outputPath": {
+      "type": "string",
+      "description": "Output directory for Bun build artifacts"
+    },
+    "external": {
+      "type": "array",
+      "description": "Packages or paths to exclude from the bundle",
+      "items": {
+        "type": "string"
+      }
+    },
+    "format": {
+      "type": "string",
+      "enum": ["esm", "cjs", "iife"],
+      "description": "Module format for the bundle"
+    },
+    "minify": {
+      "type": "boolean",
+      "description": "Enable minification"
+    },
+    "sourcemap": {
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "string", "enum": ["inline", "external"] }
+      ],
+      "description": "Source map mode"
+    },
+    "splitting": {
+      "type": "boolean",
+      "description": "Enable code splitting"
+    },
+    "target": {
+      "type": "string",
+      "description": "Compilation target"
+    },
+    "define": {
+      "type": "object",
+      "description": "Compile-time definitions",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "naming": {
+      "type": "string",
+      "description": "Output naming pattern"
+    },
+    "publicPath": {
+      "type": "string",
+      "description": "Public path for runtime asset loading"
+    },
+    "useCli": {
+      "type": "boolean",
+      "description": "Force the CLI path instead of Bun.build()"
+    }
+  },
+  "required": ["entrypoints", "outputPath"],
+  "additionalProperties": false
+}
