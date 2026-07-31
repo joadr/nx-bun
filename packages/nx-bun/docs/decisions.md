@@ -2,17 +2,6 @@
 
 This document records important architectural and product decisions for `nx-bun`.
 
-## Purpose
-
-The goal of this file is to capture decisions that are likely to matter later, especially when revisiting early assumptions or evaluating new proposals.
-
-Each decision should document:
-
-* what was decided
-* why it was decided
-* what alternatives were considered
-* what consequences follow from the decision
-
 ## Decision 0001: Build `nx-bun` as a standard Nx plugin
 
 ### Status
@@ -47,7 +36,7 @@ Accepted
 
 ### Decision
 
-The initial implementation will focus on thin wrappers around Bun CLI commands instead of creating deep abstractions.
+The initial implementation will focus on thin wrappers around Bun CLI commands or Bun APIs instead of creating deep abstractions.
 
 ### Rationale
 
@@ -61,9 +50,9 @@ A thin-wrapper approach keeps the plugin simple, understandable, and more resili
 
 ### Consequences
 
-* early executors will map closely to Bun commands
-* documentation will remain straightforward
-* advanced features may be deferred until real demand appears
+* early executors map closely to Bun behavior
+* documentation stays straightforward
+* advanced features can be deferred until real demand appears
 
 ## Decision 0003: Start with executors before generators
 
@@ -73,7 +62,7 @@ Accepted
 
 ### Decision
 
-Executor implementation will come before generator implementation.
+Executor implementation came before generator implementation.
 
 ### Rationale
 
@@ -97,7 +86,7 @@ Accepted
 
 ### Decision
 
-The first executor to implement will be a generic `run` executor.
+The first executor is a generic `run` executor.
 
 ### Rationale
 
@@ -118,8 +107,8 @@ This creates a stable base for later `build`, `dev`, and `test` executors.
 
 ### Consequences
 
-* early design should prioritize reusable process execution utilities
-* specialized executors should reuse shared execution logic rather than duplicate it
+* early design prioritizes reusable process execution utilities
+* specialized executors reuse shared execution logic rather than duplicate it
 
 ## Decision 0005: Do not target deprecated runner behavior
 
@@ -220,29 +209,53 @@ Explicit configuration is easier to debug, document, and maintain, especially in
 * users may write slightly more configuration in exchange for clarity
 * debugging becomes simpler
 
-## Decision template
-
-Use this template for future entries.
-
-## Decision XXXX: Title
+## Decision 0009: Build executor is API-first with CLI fallback
 
 ### Status
 
-Proposed | Accepted | Superseded | Rejected
+Accepted
 
 ### Decision
 
-What was decided.
+The Bun build executor will use `Bun.build()` when available and fall back to the CLI when requested or needed.
 
 ### Rationale
 
-Why this decision was made.
+The API path is the most direct Bun integration, while the CLI fallback preserves compatibility and gives users an escape hatch.
 
 ### Alternatives considered
 
-* Alternative A
-* Alternative B
+* CLI-only builds
+* API-only builds
+* hidden automatic switching with no escape hatch
 
 ### Consequences
 
-What this decision implies for the project.
+* the build executor stays Bun-native
+* users can force CLI mode with `useCli`
+* the implementation remains testable in both modes
+
+## Decision 0010: Keep `buildTarget` as the build-first signal
+
+### Status
+
+Accepted
+
+### Decision
+
+`run` uses `buildTarget` to decide when to run a build task before launching Bun output.
+
+### Rationale
+
+`buildTarget` matches the Nx Node executor model and keeps launch targets explicit.
+
+### Alternatives considered
+
+* infer build tasks implicitly from outputs alone
+* add separate pre-run lifecycle hooks
+
+### Consequences
+
+* build-first launch flows stay explicit
+* `serve` can stay simple and readable
+* the executor can still infer the primary built file from the build target outputs

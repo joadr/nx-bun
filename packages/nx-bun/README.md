@@ -1,22 +1,19 @@
 # nx-bun
 
-An Nx plugin for integrating Bun into modern Nx workspaces.
+`nx-bun` is an Nx plugin for Bun-based workflows.
 
-## Purpose
+## What It Provides
 
-`nx-bun` aims to provide a maintained, modern alternative to older Bun + Nx integrations that depended on deprecated Nx extension points such as custom task runners.
+* `build` for Bun bundles
+* `run` for Bun scripts and entry files
+* `buildTarget`-based launch flows for built output
+* support for extra entry points, including migration bundles
 
-The goal of this project is to make Bun feel like a first-class citizen in Nx by offering:
+## Docs
 
-* generators for Bun-based applications and libraries
-* executors for common Bun workflows such as build, dev, test, and run
-* minimal reliance on Nx internals that are likely to change across releases
-* compatibility with current and future Nx versions
+* `docs/executors/build.md`
+* `docs/executors/run.md`
 
 ## Status
 
-Early implementation phase.
-
-The repo is wired as an Nx workspace and now includes a working `run` executor smoke test.
-
-It also includes an API-first `build` executor with CLI fallback for Bun bundles.
+Active development. The plugin is wired into this workspace and tested against the included example app.

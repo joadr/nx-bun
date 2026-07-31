@@ -40,6 +40,8 @@ As a user, I want to run Bun entry files with explicit runtime and application a
 
 As a user, I want Bun to run after a build target when I need compiled output, but skip the build when I want to run source directly.
 
+For build-first targets, `buildTarget` points to the Nx task that produces the bundle, and `run` launches the inferred primary output from that target's declared `outputs`.
+
 ### Watch mode
 
 As a user, I want the `serve` target to keep rebuilding and restarting when source files change.
@@ -69,109 +71,75 @@ Example intent:
 
 The exact final option shape can be refined during implementation, but the executor should preserve explicitness.
 
-## Proposed target examples
+## Current Workspace Examples
 
-### Example 1: Script mode
+### Example 1: Direct source run
 
 ```json
 {
-    "targets": {
-        "dev": {
-            "executor": "@your-scope/nx-bun:run",
-            "options": {
-                "script": "dev"
-            }
-        }
+  "targets": {
+    "serve-source": {
+      "executor": "nx-bun:run",
+      "continuous": true,
+      "options": {
+        "entry": "src/main.ts",
+        "watch": true
+      }
     }
+  }
 }
 ```
 
 Expected command shape:
 
 ```text
-bun run dev
+bun --watch src/main.ts
 ```
 
-### Example 2: Script mode with extra arguments
+### Example 2: Source run with runtime args
 
 ```json
 {
-    "targets": {
-        "start": {
-            "executor": "@your-scope/nx-bun:run",
-            "options": {
-                "script": "start",
-                "args": ["--port", "3000"]
-            }
-        }
+  "targets": {
+    "serve-source": {
+      "executor": "nx-bun:run",
+      "continuous": true,
+      "options": {
+        "entry": "src/main.ts",
+        "runtimeArgs": ["--inspect"]
+      }
     }
+  }
 }
 ```
 
 Expected command shape:
 
 ```text
-bun run start --port 3000
+bun --inspect src/main.ts
 ```
 
-### Example 3: Direct entry mode
+### Example 3: Build-first serve
 
 ```json
 {
-    "targets": {
-        "test": {
-            "executor": "@your-scope/nx-bun:run",
-            "options": {
-                "entry": "src/main.ts"
-            }
-        }
+  "targets": {
+    "serve": {
+      "executor": "nx-bun:run",
+      "continuous": true,
+      "options": {
+        "buildTarget": "example-app:build",
+        "watch": true
+      }
     }
+  }
 }
 ```
 
 Expected command shape:
 
 ```text
-bun src/main.ts
-```
-
-### Example 4: Direct entry mode with runtime args
-
-```json
-{
-    "targets": {
-        "build": {
-            "executor": "@your-scope/nx-bun:run",
-            "options": {
-                "entry": "src/main.ts",
-                "runtimeArgs": ["--inspect"],
-                "args": ["--outdir", "dist/apps/api"]
-            }
-        }
-    }
-}
-```
-
-Expected command shape:
-
-```text
-bun --inspect src/main.ts --outdir dist/apps/api
-```
-
-### Example 5: Build first
-
-```json
-{
-    "targets": {
-        "serve": {
-            "executor": "@your-scope/nx-bun:run",
-            "options": {
-                "buildTarget": "my-app:build",
-                "entry": "src/main.ts"
-            }
-        }
-    }
-}
+bun --watch /absolute/path/to/packages/example-app/dist/main.js
 ```
 
 ## Proposed option model
@@ -185,11 +153,9 @@ Initial proposal:
 | `buildTarget` | `string` | no | Nx target to run before Bun starts |
 | `runtimeArgs` | `string[]` | no | Extra arguments passed to Bun before the script or entry |
 | `args` | `string[]` | no | Extra arguments appended after script or entry |
-| `watch` | `boolean` | no | Add Bun watch mode when launching an entry or built output |
 | `cwd` | `string` | no | Working directory relative to workspace root or absolute path |
 | `bunPath` | `string` | no | Explicit Bun binary path if auto-resolution is not desired |
 | `env` | `Record<string, string>` | no | Extra environment variables for the spawned process |
-| `watch` | `boolean` | no | Hint that the process is long-running or watch-oriented |
 
 ## Validation rules
 

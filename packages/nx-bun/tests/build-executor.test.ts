@@ -7,11 +7,15 @@ import buildExecutor from '../src/executors/build/executor';
 function makeTempProject(): string {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nx-bun-build-'));
     fs.mkdirSync(path.join(root, 'src'), { recursive: true });
+    fs.mkdirSync(path.join(root, 'db', 'migrations'), { recursive: true });
+
+    fs.writeFileSync(path.join(root, 'src', 'main.ts'), "console.log('hello from build');\n", 'utf8');
     fs.writeFileSync(
-        path.join(root, 'src', 'main.ts'),
-        "console.log('hello from build');\n",
+        path.join(root, 'db', 'migrations', 'Migration20250331154716.ts'),
+        "console.log('hello from migration');\n",
         'utf8',
     );
+
     return root;
 }
 
@@ -34,7 +38,13 @@ test('build executor uses Bun.build when available', async () => {
 
     const result = await buildExecutor(
         {
-            entrypoints: ['src/main.ts'],
+            entry: 'src/main.ts',
+            additionalEntryPoints: [
+                {
+                    name: 'db/migrations/migration0',
+                    path: 'db/migrations/Migration20250331154716.ts',
+                },
+            ],
             outputPath: 'dist',
         },
         makeContext(root),
@@ -42,6 +52,7 @@ test('build executor uses Bun.build when available', async () => {
 
     expect(result.success).toBe(true);
     expect(fs.existsSync(path.join(root, 'dist', 'main.js'))).toBe(true);
+    expect(fs.existsSync(path.join(root, 'dist', 'db', 'migrations', 'migration0.js'))).toBe(true);
 });
 
 test('build executor can be forced to use the CLI', async () => {
@@ -49,7 +60,10 @@ test('build executor can be forced to use the CLI', async () => {
 
     const result = await buildExecutor(
         {
-            entrypoints: ['src/main.ts'],
+            entry: 'src/main.ts',
+            additionalEntryPoints: [
+                'db/migrations/Migration20250331154716.ts',
+            ],
             outputPath: 'dist',
             useCli: true,
         },
@@ -58,4 +72,5 @@ test('build executor can be forced to use the CLI', async () => {
 
     expect(result.success).toBe(true);
     expect(fs.existsSync(path.join(root, 'dist', 'main.js'))).toBe(true);
+    expect(fs.existsSync(path.join(root, 'dist', 'Migration20250331154716.js'))).toBe(true);
 });

@@ -3,17 +3,37 @@
   "title": "nx-bun build executor",
   "type": "object",
   "properties": {
-    "entrypoints": {
-      "type": "array",
-      "description": "Bun entrypoints to build",
-      "items": {
-        "type": "string"
-      },
-      "minItems": 1
+    "entry": {
+      "type": "string",
+      "description": "Primary Bun entry file to build"
     },
     "outputPath": {
       "type": "string",
       "description": "Output directory for Bun build artifacts"
+    },
+    "additionalEntryPoints": {
+      "type": "array",
+      "description": "Additional Bun entry points to build",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "path"],
+            "additionalProperties": false
+          }
+        ]
+      }
     },
     "external": {
       "type": "array",
@@ -70,6 +90,6 @@
       "description": "Keep rebuilding when files change"
     }
   },
-  "required": ["entrypoints", "outputPath"],
+  "required": ["entry", "outputPath"],
   "additionalProperties": false
 }

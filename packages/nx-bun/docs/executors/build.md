@@ -8,14 +8,14 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 
 ## Options
 
-* `entrypoints`: Bun entry files to build
+* `entry`: primary Bun entry file to build
 * `outputPath`: output directory for artifacts
+* `additionalEntryPoints`: extra Bun entry files or named entry descriptors
 * `external`: packages or paths to exclude
 * `format`: bundle format
 * `minify`: enable minification
 * `sourcemap`: source map mode
 * `splitting`: enable code splitting
-* `target`: compilation target
 * `define`: compile-time replacements
 * `naming`: output naming pattern
 * `publicPath`: runtime asset prefix
@@ -26,6 +26,38 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 
 * resolve paths from the project root
 * build artifacts into the declared output directory
+* keep the output directory as the Nx `outputs` contract
+* support multiple entry bundles for scripts and migrations
 * preserve a simple option surface
 * return `success: false` on build failure
 * support watch mode for continuous rebuilds
+
+## Current Workspace Example
+
+```json
+{
+  "targets": {
+    "build": {
+      "executor": "nx-bun:build",
+      "continuous": true,
+      "options": {
+        "entry": "src/main.ts",
+        "additionalEntryPoints": [
+          {
+            "name": "db/migrations/migration0",
+            "path": "db/migrations/Migration20250331154716.ts"
+          }
+        ],
+        "outputPath": "dist",
+        "watch": true
+      },
+      "outputs": ["{projectRoot}/dist"]
+    }
+  }
+}
+```
+
+Expected output:
+
+* `dist/main.js`
+* `dist/db/migrations/migration0.js`
