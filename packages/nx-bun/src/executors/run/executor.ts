@@ -81,6 +81,26 @@ function resolveEntryFromBuildTarget(buildTarget: string, context: ExecutorConte
     return undefined;
 }
 
+async function waitForEntryFromBuildTarget(
+    buildTarget: string,
+    context: ExecutorContext,
+    timeoutMs = 30000,
+): Promise<string | undefined> {
+    const deadline = Date.now() + timeoutMs;
+
+    while (Date.now() < deadline) {
+        const resolvedEntry = resolveEntryFromBuildTarget(buildTarget, context);
+
+        if (resolvedEntry) {
+            return resolvedEntry;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+
+    return undefined;
+}
+
 export default async function runExecutor(
     options: RunExecutorOptions,
     context: ExecutorContext,
@@ -95,8 +115,13 @@ export default async function runExecutor(
         }
     }
 
-    const resolvedEntry =
-        options.entry ?? (options.buildTarget ? resolveEntryFromBuildTarget(options.buildTarget, context) : undefined);
+    const resolvedEntry = options.entry
+        ? options.entry
+        : options.buildTarget
+          ? options.watch
+              ? await waitForEntryFromBuildTarget(options.buildTarget, context)
+              : resolveEntryFromBuildTarget(options.buildTarget, context)
+          : undefined;
 
     if (!options.script && !resolvedEntry) {
         throw new Error(
