@@ -48,6 +48,18 @@
         "entry": "src/main.tsx",
         "watch": true
       }
+    },
+    "test": {
+      "executor": "nx-bun:test",
+      "dependsOn": [
+        {
+          "projects": "nx-bun",
+          "target": "build"
+        }
+      ],
+      "options": {
+        "args": ["src/render.test.tsx"]
+      }
     }
   }
 }

@@ -19,6 +19,7 @@ Current executors:
 
 * `run`
 * `build`
+* `test`
 
 Planned later:
 
@@ -73,6 +74,9 @@ src/
       run-utils.ts
       schema.json
     build/
+      executor.ts
+      schema.json
+    test/
       executor.ts
       schema.json
   index.ts

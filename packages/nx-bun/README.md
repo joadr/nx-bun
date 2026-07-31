@@ -6,6 +6,7 @@
 
 * `build` for Bun bundles
 * `run` for Bun scripts and entry files
+* `test` for `bun test`
 * `buildTarget`-based launch flows for built output
 * support for extra entry points, including migration bundles
 * optional Bun CLI flags for advanced `build` customization in `useCli` mode
@@ -14,6 +15,7 @@
 
 * `docs/executors/build.md`
 * `docs/executors/run.md`
+* `docs/executors/test.md`
 * `../jsx-example-app/README.md` for the TSX rendering example
 
 ## Status

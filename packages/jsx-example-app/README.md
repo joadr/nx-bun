@@ -14,6 +14,7 @@
 ```bash
 npx nx run jsx-example-app:serve
 npx nx run jsx-example-app:serve-source
+npx nx run jsx-example-app:test
 ```
 
 Open `http://localhost:3000`.

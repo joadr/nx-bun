@@ -11,6 +11,11 @@
       "implementation": "./dist/executors/run/executor.js",
       "schema": "./src/executors/run/schema.json",
       "description": "Run Bun scripts or entry files"
+    },
+    "test": {
+      "implementation": "./dist/executors/test/executor.js",
+      "schema": "./src/executors/test/schema.json",
+      "description": "Run Bun tests"
     }
   }
 }

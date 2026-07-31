@@ -25,6 +25,7 @@ The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
 * `nx run example-app:build` builds the example app and migration bundle.
 * `nx run example-app:serve` builds first, then launches the built app in watch mode.
 * `nx run example-app:serve-source` runs the source entry directly in watch mode.
+* `nx run jsx-example-app:test` runs the TSX example tests.
 * `nx run nx-bun:test` runs the plugin tests.
 * `nx run nx-bun:selftest` exercises the built plugin.
 * `nx run nx-bun:selftest-source` exercises the source plugin.
@@ -64,10 +65,26 @@ The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
 }
 ```
 
+### Run Bun tests
+
+```json
+{
+  "targets": {
+    "test": {
+      "executor": "nx-bun:test",
+      "options": {
+        "args": ["src/render.test.tsx"]
+      }
+    }
+  }
+}
+```
+
 ```bash
 npx nx run example-app:build
 npx nx run example-app:serve
 npx nx run example-app:serve-source
+npx nx run jsx-example-app:test
 ```
 
 ## How The Plugin Works
@@ -90,6 +107,7 @@ npx nx run example-app:serve-source
 * `packages/nx-bun/README.md`
 * `packages/nx-bun/docs/executors/build.md`
 * `packages/nx-bun/docs/executors/run.md`
+* `packages/nx-bun/docs/executors/test.md`
 
 ## Status
 

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "title": "nx-bun test executor",
+  "type": "object",
+  "properties": {
+    "args": {
+      "type": "array",
+      "description": "Additional arguments passed to bun test",
+      "items": {
+        "type": "string"
+      }
+    },
+    "runtimeArgs": {
+      "type": "array",
+      "description": "Additional arguments passed to Bun before test",
+      "items": {
+        "type": "string"
+      }
+    },
+    "buildTarget": {
+      "type": "string",
+      "description": "Optional Nx target to run before bun test"
+    },
+    "cwd": {
+      "type": "string",
+      "description": "Working directory for the Bun process"
+    },
+    "bunPath": {
+      "type": "string",
+      "description": "Explicit path to the Bun binary"
+    },
+    "env": {
+      "type": "object",
+      "description": "Additional environment variables",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "watch": {
+      "type": "boolean",
+      "description": "Run bun test in watch mode"
+    }
+  },
+  "additionalProperties": false
+}
