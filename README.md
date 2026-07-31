@@ -31,6 +31,39 @@ The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
 
 ## Quick Start
 
+### Build a Bun app
+
+```json
+{
+  "targets": {
+    "build": {
+      "executor": "nx-bun:build",
+      "options": {
+        "entry": "src/main.ts",
+        "outputPath": "dist"
+      },
+      "outputs": ["{projectRoot}/dist"]
+    }
+  }
+}
+```
+
+### Run a Bun entry file
+
+```json
+{
+  "targets": {
+    "serve-source": {
+      "executor": "nx-bun:run",
+      "options": {
+        "entry": "src/main.ts",
+        "watch": true
+      }
+    }
+  }
+}
+```
+
 ```bash
 npx nx run example-app:build
 npx nx run example-app:serve
