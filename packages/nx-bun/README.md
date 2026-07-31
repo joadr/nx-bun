@@ -13,6 +13,7 @@
 
 * `docs/executors/build.md`
 * `docs/executors/run.md`
+* `../jsx-example-app/README.md` for the TSX rendering example
 
 ## Status
 

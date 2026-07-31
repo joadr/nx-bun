@@ -54,6 +54,12 @@ It supports:
 * `additionalEntryPoints` for migration-style or extra bundles
 * directory-based Nx outputs
 
+### JSX example app
+
+The workspace includes `jsx-example-app` as a TSX rendering example.
+
+It uses a custom JSX factory and a small HTML renderer, so JSX syntax here does not imply React.
+
 ## Layout
 
 Current package layout:
