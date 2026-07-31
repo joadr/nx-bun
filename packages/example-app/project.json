@@ -9,11 +9,17 @@
       "executor": "nx-bun:build",
       "continuous": true,
       "options": {
-        "entrypoints": ["src/main.ts"],
+        "entry": "src/main.ts",
+        "additionalEntryPoints": [
+          {
+            "name": "db/migrations/migration0",
+            "path": "db/migrations/Migration20250331154716.ts"
+          }
+        ],
         "outputPath": "dist",
         "watch": true
       },
-      "outputs": ["{projectRoot}/dist/main.js"]
+      "outputs": ["{projectRoot}/dist"]
     },
     "serve": {
       "executor": "nx-bun:run",
