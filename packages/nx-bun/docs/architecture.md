@@ -53,6 +53,7 @@ It supports:
 * a primary `entry`
 * `additionalEntryPoints` for migration-style or extra bundles
 * directory-based Nx outputs
+* `cliArgs` as an advanced Bun CLI escape hatch when `useCli` is enabled
 
 ### JSX example app
 

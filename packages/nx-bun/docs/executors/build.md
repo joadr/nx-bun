@@ -19,6 +19,7 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 * `define`: compile-time replacements
 * `naming`: output naming pattern
 * `publicPath`: runtime asset prefix
+* `cliArgs`: extra Bun CLI flags for `useCli` mode
 * `useCli`: force CLI mode
 * `watch`: keep rebuilding on file changes
 
@@ -29,6 +30,7 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 * keep the output directory as the Nx `outputs` contract
 * support multiple entry bundles for scripts and migrations
 * preserve a simple option surface
+* allow advanced Bun CLI customization when `useCli` is enabled
 * return `success: false` on build failure
 * support watch mode for continuous rebuilds
 
@@ -49,6 +51,7 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
           }
         ],
         "outputPath": "dist",
+        "cliArgs": ["--compile", "--bytecode"],
         "watch": true
       },
       "outputs": ["{projectRoot}/dist"]
@@ -61,3 +64,9 @@ Expected output:
 
 * `dist/main.js`
 * `dist/db/migrations/migration0.js`
+
+## Advanced CLI Escape Hatch
+
+`cliArgs` is only applied when the executor uses Bun CLI mode.
+
+Use it for Bun flags that are not represented by the structured executor options.

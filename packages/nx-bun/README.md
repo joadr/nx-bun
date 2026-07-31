@@ -8,6 +8,7 @@
 * `run` for Bun scripts and entry files
 * `buildTarget`-based launch flows for built output
 * support for extra entry points, including migration bundles
+* optional Bun CLI flags for advanced `build` customization in `useCli` mode
 
 ## Docs
 

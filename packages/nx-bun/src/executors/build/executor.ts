@@ -10,6 +10,7 @@ export interface BuildExecutorOptions {
     entry: string;
     outputPath: string;
     additionalEntryPoints?: EntryPointInput[];
+    cliArgs?: string[];
     external?: string[];
     format?: 'esm' | 'cjs' | 'iife';
     minify?: boolean;
@@ -44,6 +45,12 @@ function validateOptions(options: BuildExecutorOptions): void {
     if (options.additionalEntryPoints !== undefined) {
         if (!Array.isArray(options.additionalEntryPoints)) {
             throw new Error('"additionalEntryPoints" must be an array when provided.');
+        }
+    }
+
+    if (options.cliArgs !== undefined) {
+        if (!Array.isArray(options.cliArgs) || !options.cliArgs.every((arg) => typeof arg === 'string')) {
+            throw new Error('"cliArgs" must be an array of strings when provided.');
         }
     }
 }
@@ -176,6 +183,10 @@ function buildCliArgs(entryPoints: NormalizedEntryPoint[], outputPath: string, o
 
     if (options.publicPath) {
         args.push('--public-path', options.publicPath);
+    }
+
+    if (options.cliArgs) {
+        args.push(...options.cliArgs);
     }
 
     args.push('--outdir', outputPath);

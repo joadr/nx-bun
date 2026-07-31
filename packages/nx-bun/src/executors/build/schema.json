@@ -81,6 +81,13 @@
       "type": "string",
       "description": "Public path for runtime asset loading"
     },
+    "cliArgs": {
+      "type": "array",
+      "description": "Additional Bun CLI flags for useCli mode",
+      "items": {
+        "type": "string"
+      }
+    },
     "useCli": {
       "type": "boolean",
       "description": "Force the CLI path instead of Bun.build()"
