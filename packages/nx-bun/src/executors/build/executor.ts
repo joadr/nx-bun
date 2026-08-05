@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { writeGeneratedPackageJson } from './package-json';
 
 type EntryPointInput = string | { name: string; path: string };
 
@@ -11,6 +12,7 @@ export interface BuildExecutorOptions {
     outputPath: string;
     additionalEntryPoints?: EntryPointInput[];
     cliArgs?: string[];
+    generatePackageJson?: boolean;
     external?: string[];
     format?: 'esm' | 'cjs' | 'iife';
     minify?: boolean;
@@ -52,6 +54,10 @@ function validateOptions(options: BuildExecutorOptions): void {
         if (!Array.isArray(options.cliArgs) || !options.cliArgs.every((arg) => typeof arg === 'string')) {
             throw new Error('"cliArgs" must be an array of strings when provided.');
         }
+    }
+
+    if (options.generatePackageJson !== undefined && typeof options.generatePackageJson !== 'boolean') {
+        throw new Error('"generatePackageJson" must be a boolean when provided.');
     }
 }
 
@@ -139,6 +145,22 @@ function createEntryShims(entryPoints: NormalizedEntryPoint[], shimRoot: string)
             ...entryPoint,
             shimPath,
         };
+    });
+}
+
+function generatePackageJsonIfRequested(
+    options: BuildExecutorOptions,
+    context: ExecutorContext,
+    outputPath: string,
+): void {
+    if (!options.generatePackageJson) {
+        return;
+    }
+
+    writeGeneratedPackageJson({
+        context,
+        outputPath,
+        external: options.external,
     });
 }
 
@@ -254,6 +276,10 @@ export default async function buildExecutor(
     const shims = createEntryShims(entryPoints, shimRoot);
 
     try {
+        if (options.generatePackageJson) {
+            generatePackageJsonIfRequested(options, context, outputPath);
+        }
+
         if (options.useCli || options.watch) {
             return { success: await runCli(shims, outputPath, options, projectRoot) };
         }

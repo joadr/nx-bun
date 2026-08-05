@@ -20,6 +20,7 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 * `naming`: output naming pattern
 * `publicPath`: runtime asset prefix
 * `cliArgs`: extra Bun CLI flags for `useCli` mode
+* `generatePackageJson`: write a pruned `package.json` into the output directory
 * `useCli`: force CLI mode
 * `watch`: keep rebuilding on file changes
 
@@ -30,6 +31,7 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 * keep the output directory as the Nx `outputs` contract
 * support multiple entry bundles for scripts and migrations
 * preserve a simple option surface
+* optionally emit a deployable `package.json`
 * allow advanced Bun CLI customization when `useCli` is enabled
 * return `success: false` on build failure
 * support watch mode for continuous rebuilds
@@ -51,6 +53,7 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
           }
         ],
         "outputPath": "dist",
+        "generatePackageJson": true,
         "cliArgs": ["--compile", "--bytecode"],
         "watch": true
       },
@@ -64,6 +67,13 @@ Expected output:
 
 * `dist/main.js`
 * `dist/db/migrations/migration0.js`
+* `dist/package.json`
+
+## Package Json Generation
+
+When `generatePackageJson` is enabled, `nx-bun:build` writes a pruned `package.json` next to the build output.
+
+The generated manifest keeps the workspace package name/version metadata and runtime dependencies, while removing scripts and development-only dependencies.
 
 ## Advanced CLI Escape Hatch
 

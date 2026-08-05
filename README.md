@@ -16,6 +16,7 @@ This repo contains the `nx-bun` Nx plugin and a small example app used to exerci
 * `run` launches Bun scripts or entry files.
 * `run` can also launch built output via `buildTarget`.
 * `build` supports extra entry points for things like migrations.
+* `build` can optionally emit a pruned `package.json` for deployment.
 * The workspace also includes a TSX server-rendering example to exercise JSX support.
 
 The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.

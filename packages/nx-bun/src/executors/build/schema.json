@@ -88,6 +88,10 @@
         "type": "string"
       }
     },
+    "generatePackageJson": {
+      "type": "boolean",
+      "description": "Write a pruned package.json into the output directory"
+    },
     "useCli": {
       "type": "boolean",
       "description": "Force the CLI path instead of Bun.build()"

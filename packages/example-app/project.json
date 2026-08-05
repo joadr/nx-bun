@@ -8,6 +8,12 @@
     "build": {
       "executor": "nx-bun:build",
       "continuous": true,
+      "dependsOn": [
+        {
+          "projects": "nx-bun",
+          "target": "build"
+        }
+      ],
       "options": {
         "entry": "src/main.ts",
         "additionalEntryPoints": [
@@ -17,6 +23,7 @@
           }
         ],
         "outputPath": "dist",
+        "generatePackageJson": true,
         "watch": true
       },
       "outputs": ["{projectRoot}/dist"]
@@ -38,6 +45,12 @@
     "serve-source": {
       "executor": "nx-bun:run",
       "continuous": true,
+      "dependsOn": [
+        {
+          "projects": "nx-bun",
+          "target": "build"
+        }
+      ],
       "options": {
         "entry": "src/main.ts",
         "watch": true
