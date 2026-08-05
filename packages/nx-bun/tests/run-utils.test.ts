@@ -100,11 +100,11 @@ test("formatCommand is readable", () => {
 
 test("resolveEntryFromBuildTarget supports options.outputPath outputs", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "nx-bun-run-"));
-  fs.mkdirSync(path.join(root, "apps", "accounts", "dist"), {
+  fs.mkdirSync(path.join(root, "dist", "apps", "accounts"), {
     recursive: true,
   });
   fs.writeFileSync(
-    path.join(root, "apps", "accounts", "dist", "main.js"),
+    path.join(root, "dist", "apps", "accounts", "main.js"),
     "console.log(1);\n",
     "utf8",
   );
@@ -125,7 +125,7 @@ test("resolveEntryFromBuildTarget supports options.outputPath outputs", () => {
             build: {
               outputs: ["{options.outputPath}"],
               options: {
-                outputPath: "apps/accounts/dist",
+                outputPath: "{workspaceRoot}/dist/apps/accounts",
               },
             },
           },
@@ -135,7 +135,7 @@ test("resolveEntryFromBuildTarget supports options.outputPath outputs", () => {
   } as never;
 
   expect(resolveEntryFromBuildTarget("accounts:build", context)).toBe(
-    path.join(root, "apps", "accounts", "dist", "main.js"),
+    path.join(root, "dist", "apps", "accounts", "main.js"),
   );
 });
 

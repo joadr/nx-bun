@@ -45,7 +45,11 @@ export function resolveEntryFromBuildTarget(
 
   const workspaceRoot = path.resolve(context.root ?? ".");
   const projectRoot = path.resolve(workspaceRoot, project?.root ?? ".");
-  const outputPath = target?.options?.outputPath;
+  const outputPath = target?.options?.outputPath
+    ? target.options.outputPath
+        .replaceAll("{workspaceRoot}", workspaceRoot)
+        .replaceAll("{projectRoot}", projectRoot)
+    : undefined;
 
   for (const output of outputs) {
     const resolved = output
