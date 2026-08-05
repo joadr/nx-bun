@@ -18,12 +18,12 @@ For GitHub Actions publishing, use npm Trusted Publishing instead of an `NPM_TOK
 
 ## What It Provides
 
-- `build` for Bun bundles
+- `build` for Bun entry files
 - `run` for Bun scripts and entry files
 - `test` for `bun test`
 - `buildTarget`-based launch flows for built output
-- support for extra entry points, including migration bundles
-- optional Bun CLI flags for advanced `build` customization in `useCli` mode
+- support for extra entry points, including migration files
+- Bun CLI flags for advanced `build` customization
 - optional pruned `package.json` generation for deployable builds
 
 ## Docs

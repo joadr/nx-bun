@@ -18,15 +18,15 @@ Recent Nx versions no longer center customization around custom task runners. A 
 
 ### Alternatives considered
 
-* Revive older custom runner patterns
-* Patch Nx internals
-* Build on a fork of Nx
+- Revive older custom runner patterns
+- Patch Nx internals
+- Build on a fork of Nx
 
 ### Consequences
 
-* the project will rely on executors, generators, migrations, and only optional hooks when justified
-* deep task orchestration customization is out of scope
-* some older Bun integration patterns will not be preserved
+- the project will rely on executors, generators, migrations, and only optional hooks when justified
+- deep task orchestration customization is out of scope
+- some older Bun integration patterns will not be preserved
 
 ## Decision 0002: Thin-wrapper-first implementation strategy
 
@@ -44,15 +44,15 @@ A thin-wrapper approach keeps the plugin simple, understandable, and more resili
 
 ### Alternatives considered
 
-* build a highly opinionated Bun framework layer
-* infer too much behavior automatically from project structure
-* add advanced Bun-specific abstractions in v1
+- build a highly opinionated Bun framework layer
+- infer too much behavior automatically from project structure
+- add advanced Bun-specific abstractions in v1
 
 ### Consequences
 
-* early executors map closely to Bun behavior
-* documentation stays straightforward
-* advanced features can be deferred until real demand appears
+- early executors map closely to Bun behavior
+- documentation stays straightforward
+- advanced features can be deferred until real demand appears
 
 ## Decision 0003: Start with executors before generators
 
@@ -70,13 +70,13 @@ Executors validate the core technical value of the plugin: running Bun workflows
 
 ### Alternatives considered
 
-* scaffold generators first for faster demos
-* build app templates before command execution is stable
+- scaffold generators first for faster demos
+- build app templates before command execution is stable
 
 ### Consequences
 
-* the first meaningful implementation milestone is a working `run` executor
-* generators will be designed around proven executor behavior
+- the first meaningful implementation milestone is a working `run` executor
+- generators will be designed around proven executor behavior
 
 ## Decision 0004: `run` is the foundational executor
 
@@ -92,23 +92,23 @@ The first executor is a generic `run` executor.
 
 A generic `run` executor establishes shared logic for:
 
-* Bun binary resolution
-* argument passing
-* process spawning
-* error handling
+- Bun binary resolution
+- argument passing
+- process spawning
+- error handling
 
 This creates a stable base for later `build`, `dev`, and `test` executors.
 
 ### Alternatives considered
 
-* start with `build`
-* start with `dev`
-* build each executor separately without a shared base
+- start with `build`
+- start with `dev`
+- build each executor separately without a shared base
 
 ### Consequences
 
-* early design prioritizes reusable process execution utilities
-* specialized executors reuse shared execution logic rather than duplicate it
+- early design prioritizes reusable process execution utilities
+- specialized executors reuse shared execution logic rather than duplicate it
 
 ## Decision 0005: Do not target deprecated runner behavior
 
@@ -126,14 +126,14 @@ That approach is misaligned with current Nx direction and would increase mainten
 
 ### Alternatives considered
 
-* compatibility shims for older runner interfaces
-* hidden internal integration with deprecated mechanisms
+- compatibility shims for older runner interfaces
+- hidden internal integration with deprecated mechanisms
 
 ### Consequences
 
-* some legacy use cases may not be supported
-* the plugin remains aligned with public Nx extension points
-* maintenance burden is reduced
+- some legacy use cases may not be supported
+- the plugin remains aligned with public Nx extension points
+- maintenance burden is reduced
 
 ## Decision 0006: Remote cache concerns are out of scope
 
@@ -151,14 +151,14 @@ The purpose of this project is Bun integration for modern Nx, not replacing or c
 
 ### Alternatives considered
 
-* bundle remote cache helpers
-* position the plugin as part of a broader Nx alternative strategy
+- bundle remote cache helpers
+- position the plugin as part of a broader Nx alternative strategy
 
 ### Consequences
 
-* scope remains focused
-* the plugin can serve users who simply want Bun support in Nx
-* unrelated product debates do not define the project roadmap
+- scope remains focused
+- the plugin can serve users who simply want Bun support in Nx
+- unrelated product debates do not define the project roadmap
 
 ## Decision 0007: Hooks are optional, not foundational
 
@@ -176,13 +176,13 @@ There is no need to introduce extra complexity before verifying whether core plu
 
 ### Alternatives considered
 
-* design around hooks from the start
-* build speculative lifecycle integrations early
+- design around hooks from the start
+- build speculative lifecycle integrations early
 
 ### Consequences
 
-* the v1 implementation remains simpler
-* hook usage must be justified by a specific problem
+- the v1 implementation remains simpler
+- hook usage must be justified by a specific problem
 
 ## Decision 0008: Prefer explicit configuration over hidden inference
 
@@ -200,16 +200,16 @@ Explicit configuration is easier to debug, document, and maintain, especially in
 
 ### Alternatives considered
 
-* aggressive inference based on project structure
-* silent defaults that change behavior substantially
+- aggressive inference based on project structure
+- silent defaults that change behavior substantially
 
 ### Consequences
 
-* target configuration stays readable
-* users may write slightly more configuration in exchange for clarity
-* debugging becomes simpler
+- target configuration stays readable
+- users may write slightly more configuration in exchange for clarity
+- debugging becomes simpler
 
-## Decision 0009: Build executor is API-first with CLI fallback
+## Decision 0009: Build executor uses the Bun CLI
 
 ### Status
 
@@ -217,23 +217,22 @@ Accepted
 
 ### Decision
 
-The Bun build executor will use `Bun.build()` when available and fall back to the CLI when requested or needed.
+The Bun build executor will use the Bun CLI as its primary implementation.
 
 ### Rationale
 
-The API path is the most direct Bun integration, while the CLI fallback preserves compatibility and gives users an escape hatch.
+The CLI path is predictable, matches Bun's own command-line behavior, and keeps the executor's output path semantics aligned with Nx.
 
 ### Alternatives considered
 
-* CLI-only builds
-* API-only builds
-* hidden automatic switching with no escape hatch
+- CLI-only builds
+- API-only builds
+- hidden automatic switching with no escape hatch
 
 ### Consequences
 
-* the build executor stays Bun-native
-* users can force CLI mode with `useCli`
-* the implementation remains testable in both modes
+- the build executor stays Bun-native
+- the implementation stays simple and deterministic
 
 ## Decision 0010: Keep `buildTarget` as the build-first signal
 
@@ -251,11 +250,11 @@ Accepted
 
 ### Alternatives considered
 
-* infer build tasks implicitly from outputs alone
-* add separate pre-run lifecycle hooks
+- infer build tasks implicitly from outputs alone
+- add separate pre-run lifecycle hooks
 
 ### Consequences
 
-* build-first launch flows stay explicit
-* `serve` can stay simple and readable
-* the executor can still infer the primary built file from the build target outputs
+- build-first launch flows stay explicit
+- `serve` can stay simple and readable
+- the executor can still infer the primary built file from the build target outputs

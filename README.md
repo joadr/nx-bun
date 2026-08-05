@@ -12,7 +12,7 @@ This repo contains the `@joadr/nx-bun` Nx plugin and a small example app used to
 
 `@joadr/nx-bun` provides Nx executors for Bun workflows.
 
-- `build` builds Bun bundles.
+- `build` transpiles Bun entry files with Bun.
 - `run` launches Bun scripts or entry files.
 - `run` can also launch built output via `buildTarget`.
 - `build` supports extra entry points for things like migrations.
@@ -90,16 +90,16 @@ npx nx run jsx-example-app:test
 
 ## How The Plugin Works
 
-- `build` is API-first and uses `Bun.build()` when available.
-- `build` falls back to the Bun CLI when `useCli` is set or Bun APIs are unavailable.
+- `build` shells out to the Bun CLI.
+- `outputPath` is workspace-root-relative, matching standard Nx build targets.
 - `run` executes `bun` directly for scripts or entry files.
 - `run` can use `buildTarget` to launch built output from a prior Nx task.
 - `watch` keeps build and serve targets continuous.
 
 ## Bun Build Notes
 
-- `entry` is the primary bundle entry point.
-- `additionalEntryPoints` supports extra bundles, including migration-style scripts.
+- `entry` is the primary Bun entry point.
+- `additionalEntryPoints` supports extra entry files, including migration-style scripts.
 - `outputPath` is the Bun output directory.
 - Nx `outputs` stay directory-based for now.
 

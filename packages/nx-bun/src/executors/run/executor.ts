@@ -14,6 +14,30 @@ import {
   validateOptions,
 } from "./run-utils";
 
+function resolveWorkspaceRoot(context: ExecutorContext): string {
+  if (typeof context.root === "string" && context.root.length > 0) {
+    let current = path.resolve(context.root);
+
+    while (true) {
+      if (fs.existsSync(path.join(current, "nx.json"))) {
+        return current;
+      }
+
+      const parent = path.dirname(current);
+
+      if (parent === current) {
+        break;
+      }
+
+      current = parent;
+    }
+
+    return path.resolve(context.root);
+  }
+
+  return path.resolve(process.cwd());
+}
+
 export function resolveEntryFromBuildTarget(
   buildTarget: string,
   context: ExecutorContext,
@@ -43,7 +67,7 @@ export function resolveEntryFromBuildTarget(
     return undefined;
   }
 
-  const workspaceRoot = path.resolve(context.root ?? ".");
+  const workspaceRoot = resolveWorkspaceRoot(context);
   const projectRoot = path.resolve(workspaceRoot, project?.root ?? ".");
   const outputPath = target?.options?.outputPath
     ? target.options.outputPath
@@ -51,15 +75,45 @@ export function resolveEntryFromBuildTarget(
         .replaceAll("{projectRoot}", projectRoot)
     : undefined;
 
+  const candidatePaths = new Set<string>();
+
+  const addCandidate = (candidate: string | undefined): void => {
+    if (!candidate) {
+      return;
+    }
+
+    candidatePaths.add(candidate);
+  };
+
+  const addResolvedCandidates = (value: string): void => {
+    if (path.isAbsolute(value)) {
+      addCandidate(value);
+      if (value.startsWith(workspaceRoot)) {
+        addCandidate(
+          path.resolve(projectRoot, path.relative(workspaceRoot, value)),
+        );
+      }
+      return;
+    }
+
+    addCandidate(path.resolve(workspaceRoot, value));
+    addCandidate(path.resolve(projectRoot, value));
+  };
+
+  addResolvedCandidates(outputPath ?? "");
+
   for (const output of outputs) {
     const resolved = output
       .replaceAll("{workspaceRoot}", workspaceRoot)
       .replaceAll("{projectRoot}", projectRoot)
       .replaceAll("{options.outputPath}", outputPath ?? "");
-    const candidate = path.isAbsolute(resolved)
-      ? resolved
-      : path.resolve(workspaceRoot, resolved);
 
+    if (resolved) {
+      addResolvedCandidates(resolved);
+    }
+  }
+
+  for (const candidate of candidatePaths) {
     if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
       return candidate;
     }

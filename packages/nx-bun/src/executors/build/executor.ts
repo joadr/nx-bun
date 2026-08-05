@@ -25,7 +25,7 @@ export interface BuildExecutorOptions {
   define?: Record<string, string>;
   naming?: string;
   publicPath?: string;
-  useCli?: boolean;
+  bundle?: boolean;
   watch?: boolean;
 }
 
@@ -75,10 +75,14 @@ function validateOptions(options: BuildExecutorOptions): void {
   if (options.target !== undefined && !isNonEmptyString(options.target)) {
     throw new Error('"target" must be a non-empty string when provided.');
   }
+
+  if (options.bundle !== undefined && typeof options.bundle !== "boolean") {
+    throw new Error('"bundle" must be a boolean when provided.');
+  }
 }
 
 function getProjectRoot(context: ExecutorContext): string {
-  const workspaceRoot = path.resolve(context.root ?? ".");
+  const workspaceRoot = resolveWorkspaceRoot(context);
   const projectsConfigurations = (
     context as {
       projectsConfigurations?: { projects?: Record<string, { root: string }> };
@@ -93,6 +97,30 @@ function getProjectRoot(context: ExecutorContext): string {
     projectsConfigurations?.projects?.[context.projectName]?.root;
 
   return projectRoot ? path.resolve(workspaceRoot, projectRoot) : workspaceRoot;
+}
+
+function resolveWorkspaceRoot(context: ExecutorContext): string {
+  if (typeof context.root === "string" && context.root.length > 0) {
+    let current = path.resolve(context.root);
+
+    while (true) {
+      if (fs.existsSync(path.join(current, "nx.json"))) {
+        return current;
+      }
+
+      const parent = path.dirname(current);
+
+      if (parent === current) {
+        break;
+      }
+
+      current = parent;
+    }
+
+    return path.resolve(context.root);
+  }
+
+  return path.resolve(process.cwd());
 }
 
 function resolveProjectPath(
@@ -117,6 +145,20 @@ function resolveProjectPath(
   }
 
   return projectRelativePath;
+}
+
+function resolveOutputPath(
+  projectRoot: string,
+  workspaceRoot: string,
+  value: string,
+): string {
+  const resolved = value
+    .replaceAll("{workspaceRoot}", workspaceRoot)
+    .replaceAll("{projectRoot}", projectRoot);
+
+  return path.isAbsolute(resolved)
+    ? resolved
+    : path.resolve(workspaceRoot, resolved);
 }
 
 function inferStem(filePath: string): string {
@@ -245,8 +287,69 @@ export function resolveBuildExternalDependencies(
 }
 
 export function buildCliArgs(
+  entryPoint: NormalizedEntryPoint,
+  outfile: string,
+  options: BuildExecutorOptions,
+  externalDependencies: string[],
+): string[] {
+  const args = ["build", entryPoint.shimPath];
+
+  if (options.watch) {
+    args.push("--watch");
+  }
+
+  for (const external of externalDependencies) {
+    if (external) {
+      args.push("--external", external);
+    }
+  }
+
+  args.push("--no-bundle");
+
+  if (options.format) {
+    args.push("--format", options.format);
+  }
+
+  if (options.minify) {
+    args.push("--minify");
+  }
+
+  if (options.sourcemap !== undefined) {
+    args.push("--sourcemap", String(options.sourcemap));
+  }
+
+  if (options.splitting) {
+    args.push("--splitting");
+  }
+
+  args.push("--target", options.target ?? "bun");
+
+  if (options.define) {
+    for (const [key, value] of Object.entries(options.define)) {
+      args.push("--define", `${key}=${value}`);
+    }
+  }
+
+  if (options.naming) {
+    args.push("--naming", options.naming);
+  }
+
+  if (options.publicPath) {
+    args.push("--public-path", options.publicPath);
+  }
+
+  if (options.cliArgs) {
+    args.push(...options.cliArgs);
+  }
+
+  args.push("--outfile", outfile);
+
+  return args;
+}
+
+function buildBundleCliArgs(
   entryPoints: NormalizedEntryPoint[],
-  outputPath: string,
+  outdir: string,
   options: BuildExecutorOptions,
   externalDependencies: string[],
 ): string[] {
@@ -301,80 +404,75 @@ export function buildCliArgs(
     args.push(...options.cliArgs);
   }
 
-  args.push("--outdir", outputPath);
+  args.push("--outdir", outdir);
 
   return args;
 }
 
 async function runCli(
   entryPoints: NormalizedEntryPoint[],
+  workspaceRoot: string,
   outputPath: string,
   options: BuildExecutorOptions,
-  projectRoot: string,
   externalDependencies: string[],
 ): Promise<boolean> {
-  const bun = spawn(
-    "bun",
-    buildCliArgs(entryPoints, outputPath, options, externalDependencies),
-    {
-      cwd: projectRoot,
-      stdio: "inherit",
-    },
-  );
+  if (options.bundle) {
+    const bun = spawn(
+      "bun",
+      buildBundleCliArgs(
+        entryPoints,
+        outputPath,
+        options,
+        externalDependencies,
+      ),
+      {
+        cwd: workspaceRoot,
+        stdio: "inherit",
+      },
+    );
 
-  return new Promise((resolve) => {
-    bun.once("error", (error) => {
-      console.error(`[nx-bun] failed to start bun build: ${error.message}`);
-      resolve(false);
+    return new Promise((resolve) => {
+      bun.once("error", (error) => {
+        console.error(`[nx-bun] failed to start bun build: ${error.message}`);
+        resolve(false);
+      });
+
+      bun.once("exit", (code) => {
+        resolve(code === 0);
+      });
     });
-
-    bun.once("exit", (code) => {
-      resolve(code === 0);
-    });
-  });
-}
-
-async function runApi(
-  entryPoints: NormalizedEntryPoint[],
-  outputPath: string,
-  options: BuildExecutorOptions,
-  context: ExecutorContext,
-): Promise<boolean> {
-  const bun = (
-    globalThis as {
-      Bun?: {
-        build?: (
-          input: unknown,
-        ) => Promise<{ success: boolean; logs?: Array<{ message?: string }> }>;
-      };
-    }
-  ).Bun;
-
-  if (!bun?.build) {
-    return false;
   }
 
-  const result = await bun.build({
-    entrypoints: entryPoints.map((entryPoint) => entryPoint.shimPath),
-    outdir: outputPath,
-    external: resolveBuildExternalDependencies(options, context),
-    format: options.format,
-    minify: options.minify,
-    sourcemap: options.sourcemap,
-    splitting: options.splitting,
-    target: options.target ?? "bun",
-    define: options.define,
-    naming: options.naming,
-    publicPath: options.publicPath,
-  });
+  for (const entryPoint of entryPoints) {
+    const outfile = path.join(outputPath, `${entryPoint.name}.js`);
+    fs.mkdirSync(path.dirname(outfile), { recursive: true });
 
-  for (const log of result.logs ?? []) {
-    if (log?.message) {
-      console.log(log.message);
+    const bun = spawn(
+      "bun",
+      buildCliArgs(entryPoint, outfile, options, externalDependencies),
+      {
+        cwd: workspaceRoot,
+        stdio: "inherit",
+      },
+    );
+
+    const success = await new Promise<boolean>((resolve) => {
+      bun.once("error", (error) => {
+        console.error(`[nx-bun] failed to start bun build: ${error.message}`);
+        resolve(false);
+      });
+
+      bun.once("exit", (code) => {
+        resolve(code === 0);
+      });
+    });
+
+    if (!success) {
+      return false;
     }
   }
 
-  return Boolean((result as { success?: boolean }).success ?? true);
+  return true;
 }
 
 export default async function buildExecutor(
@@ -384,14 +482,14 @@ export default async function buildExecutor(
   validateOptions(options);
 
   const projectRoot = getProjectRoot(context);
-  const outputPath = path.isAbsolute(options.outputPath)
-    ? options.outputPath
-    : path.resolve(projectRoot, options.outputPath);
-  const entryPoints = normalizeEntryPoints(
-    options,
+  const workspaceRoot = resolveWorkspaceRoot(context);
+  const outputPath = resolveOutputPath(
     projectRoot,
-    path.resolve(context.root ?? "."),
+    workspaceRoot,
+    options.outputPath,
   );
+
+  const entryPoints = normalizeEntryPoints(options, projectRoot, workspaceRoot);
   const externalDependencies = resolveBuildExternalDependencies(
     options,
     context,
@@ -404,33 +502,15 @@ export default async function buildExecutor(
       generatePackageJsonIfRequested(options, context, outputPath);
     }
 
-    if (options.useCli || options.watch) {
-      return {
-        success: await runCli(
-          shims,
-          outputPath,
-          options,
-          projectRoot,
-          externalDependencies,
-        ),
-      };
-    }
-
-    const success = await runApi(shims, outputPath, options, context);
-
-    if (!success && !options.useCli) {
-      return {
-        success: await runCli(
-          shims,
-          outputPath,
-          options,
-          projectRoot,
-          externalDependencies,
-        ),
-      };
-    }
-
-    return { success };
+    return {
+      success: await runCli(
+        shims,
+        workspaceRoot,
+        outputPath,
+        options,
+        externalDependencies,
+      ),
+    };
   } finally {
     fs.rmSync(shimRoot, { recursive: true, force: true });
   }

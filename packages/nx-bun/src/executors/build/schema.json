@@ -81,9 +81,13 @@
       "type": "string",
       "description": "Public path for runtime asset loading"
     },
+    "bundle": {
+      "type": "boolean",
+      "description": "Enable Bun bundling instead of transpile-only output"
+    },
     "cliArgs": {
       "type": "array",
-      "description": "Additional Bun CLI flags for useCli mode",
+      "description": "Additional Bun CLI flags",
       "items": {
         "type": "string"
       }
@@ -91,10 +95,6 @@
     "generatePackageJson": {
       "type": "boolean",
       "description": "Write a pruned package.json into the output directory"
-    },
-    "useCli": {
-      "type": "boolean",
-      "description": "Force the CLI path instead of Bun.build()"
     },
     "watch": {
       "type": "boolean",

@@ -2,14 +2,14 @@
 
 ## Purpose
 
-The `build` executor produces Bun bundles for Nx projects.
+The `build` executor transpiles Bun entry files for Nx projects.
 
-It is API-first when `Bun.build()` is available and falls back to the Bun CLI when `useCli` is enabled or Bun APIs are unavailable.
+It shells out to the Bun CLI, uses `--no-bundle`, and keeps the output path aligned with Nx's workspace-root-relative `outputPath` contract.
 
 ## Options
 
 - `entry`: primary Bun entry file to build
-- `outputPath`: output directory for artifacts
+- `outputPath`: output directory for artifacts, relative to the workspace root unless absolute
 - `additionalEntryPoints`: extra Bun entry files or named entry descriptors
 - `external`: packages or paths to exclude
 - `format`: bundle format
@@ -22,23 +22,23 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 - `define`: compile-time replacements
 - `naming`: output naming pattern
 - `publicPath`: runtime asset prefix
-- `cliArgs`: extra Bun CLI flags for `useCli` mode
+- `bundle`: enable Bun bundling instead of transpile-only output
+- `cliArgs`: extra Bun CLI flags
 - `generatePackageJson`: write a pruned `package.json` into the output directory
-- `useCli`: force CLI mode
 - `watch`: keep rebuilding on file changes
 
 ## Expected behavior
 
-- resolve paths from the project root
-- build artifacts into the declared output directory
-- keep the output directory as the Nx `outputs` contract
-- support multiple entry bundles for scripts and migrations
+- resolve entries from project or workspace paths
+- transpile artifacts into the declared workspace-root-relative output directory
+- keep the output directory aligned with the Nx `outputs` contract
+- support multiple entry files for scripts and migrations
 - preserve a simple option surface
 - optionally emit a deployable `package.json`
 
-* default to a server-friendly Bun build target
-
-- allow advanced Bun CLI customization when `useCli` is enabled
+- default to a server-friendly Bun build target
+- support bundling as an opt-in mode
+- allow advanced Bun CLI customization through Bun CLI flags
 - return `success: false` on build failure
 - support watch mode for continuous rebuilds
 
@@ -58,12 +58,12 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
             "path": "db/migrations/Migration20250331154716.ts"
           }
         ],
-        "outputPath": "dist",
+        "outputPath": "dist/apps/example",
         "generatePackageJson": true,
         "cliArgs": ["--compile", "--bytecode"],
         "watch": true
       },
-      "outputs": ["{projectRoot}/dist"]
+      "outputs": ["{workspaceRoot}/dist/apps/example"]
     }
   }
 }
@@ -71,9 +71,9 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 
 Expected output:
 
-- `dist/main.js`
-- `dist/db/migrations/migration0.js`
-- `dist/package.json`
+- `dist/apps/example/main.js`
+- `dist/apps/example/db/migrations/migration0.js`
+- `dist/apps/example/package.json`
 
 ## Package Json Generation
 

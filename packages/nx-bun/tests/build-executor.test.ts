@@ -63,7 +63,7 @@ function makeContext(root: string, projectRoot = ".") {
   } as never;
 }
 
-test("build executor uses Bun.build when available", async () => {
+test("build executor writes transpiled output", async () => {
   const root = makeTempProject();
 
   const result = await buildExecutor(
@@ -95,7 +95,6 @@ test("build executor can be forced to use the CLI", async () => {
       entry: "src/main.ts",
       additionalEntryPoints: ["db/migrations/Migration20250331154716.ts"],
       outputPath: "dist",
-      useCli: true,
     },
     makeContext(root),
   );
@@ -119,21 +118,59 @@ test("build executor accepts workspace-root-relative entry paths", async () => {
   );
 
   expect(result.success).toBe(true);
+  expect(fs.existsSync(path.join(root, "dist", "main.js"))).toBe(true);
+});
+
+test("build executor resolves workspaceRoot placeholders in outputPath", async () => {
+  const root = makeNestedTempProject();
+
+  const result = await buildExecutor(
+    {
+      entry: "apps/accounts/src/main.ts",
+      outputPath: "{workspaceRoot}/dist/apps/accounts",
+    },
+    makeContext(root, "apps/accounts"),
+  );
+
+  expect(result.success).toBe(true);
   expect(
-    fs.existsSync(path.join(root, "apps", "accounts", "dist", "main.js")),
+    fs.existsSync(path.join(root, "dist", "apps", "accounts", "main.js")),
+  ).toBe(true);
+});
+
+test("build executor can bundle when requested", async () => {
+  const root = makeTempProject();
+
+  const result = await buildExecutor(
+    {
+      entry: "src/main.ts",
+      additionalEntryPoints: [
+        {
+          name: "db/migrations/migration0",
+          path: "db/migrations/Migration20250331154716.ts",
+        },
+      ],
+      outputPath: "dist",
+      bundle: true,
+    },
+    makeContext(root),
+  );
+
+  expect(result.success).toBe(true);
+  expect(fs.existsSync(path.join(root, "dist", "main.js"))).toBe(true);
+  expect(
+    fs.existsSync(path.join(root, "dist", "db", "migrations", "migration0.js")),
   ).toBe(true);
 });
 
 test("build executor defaults CLI target to bun", () => {
   const args = buildCliArgs(
-    [
-      {
-        name: "main",
-        sourcePath: "/tmp/main.ts",
-        shimPath: "/tmp/shims/main.ts",
-      },
-    ],
-    "dist",
+    {
+      name: "main",
+      sourcePath: "/tmp/main.ts",
+      shimPath: "/tmp/shims/main.ts",
+    },
+    "/tmp/out/main.js",
     {
       entry: "src/main.ts",
       outputPath: "dist",

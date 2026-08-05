@@ -100,32 +100,43 @@ test("formatCommand is readable", () => {
 
 test("resolveEntryFromBuildTarget supports options.outputPath outputs", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "nx-bun-run-"));
-  fs.mkdirSync(path.join(root, "dist", "apps", "accounts"), {
-    recursive: true,
-  });
+  fs.mkdirSync(
+    path.join(root, "apps", "sample-app", "dist", "apps", "sample-app"),
+    {
+      recursive: true,
+    },
+  );
   fs.writeFileSync(
-    path.join(root, "dist", "apps", "accounts", "main.js"),
+    path.join(
+      root,
+      "apps",
+      "sample-app",
+      "dist",
+      "apps",
+      "sample-app",
+      "main.js",
+    ),
     "console.log(1);\n",
     "utf8",
   );
 
   const context = {
     root,
-    projectName: "accounts",
+    projectName: "sample-app",
     projectGraph: {
       nodes: {
-        accounts: {},
+        "sample-app": {},
       },
     },
     projectsConfigurations: {
       projects: {
-        accounts: {
-          root: "apps/accounts",
+        "sample-app": {
+          root: "apps/sample-app",
           targets: {
             build: {
               outputs: ["{options.outputPath}"],
               options: {
-                outputPath: "{workspaceRoot}/dist/apps/accounts",
+                outputPath: "{workspaceRoot}/dist/apps/sample-app",
               },
             },
           },
@@ -134,8 +145,16 @@ test("resolveEntryFromBuildTarget supports options.outputPath outputs", () => {
     },
   } as never;
 
-  expect(resolveEntryFromBuildTarget("accounts:build", context)).toBe(
-    path.join(root, "dist", "apps", "accounts", "main.js"),
+  expect(resolveEntryFromBuildTarget("sample-app:build", context)).toBe(
+    path.join(
+      root,
+      "apps",
+      "sample-app",
+      "dist",
+      "apps",
+      "sample-app",
+      "main.js",
+    ),
   );
 });
 

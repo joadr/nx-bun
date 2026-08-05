@@ -8,24 +8,24 @@ This document describes the current architecture of `nx-bun`.
 
 It favors:
 
-* supported Nx extension points
-* explicit configuration
-* Bun-native behavior
-* small executors with shared helpers
+- supported Nx extension points
+- explicit configuration
+- Bun-native behavior
+- small executors with shared helpers
 
 ## Package Shape
 
 Current executors:
 
-* `run`
-* `build`
-* `test`
+- `run`
+- `build`
+- `test`
 
 Planned later:
 
-* `dev`
-* `test`
-* generators
+- `dev`
+- `test`
+- generators
 
 ## Execution Model
 
@@ -35,26 +35,26 @@ Planned later:
 
 It supports:
 
-* `script` mode for `bun run <script>`
-* `entry` mode for direct source execution
-* `buildTarget` mode for build-first launch flows
-* `watch` for long-running source or built-output execution
+- `script` mode for `bun run <script>`
+- `entry` mode for direct source execution
+- `buildTarget` mode for build-first launch flows
+- `watch` for long-running source or built-output execution
 
 ### `build`
 
-`build` produces Bun bundles.
+`build` transpiles Bun entry files.
 
 It is:
 
-* API-first when `Bun.build()` is available
-* CLI-fallback when `useCli` is set or the API is unavailable
+- CLI-based
+- workspace-root-relative for `outputPath`
 
 It supports:
 
-* a primary `entry`
-* `additionalEntryPoints` for migration-style or extra bundles
-* directory-based Nx outputs
-* `cliArgs` as an advanced Bun CLI escape hatch when `useCli` is enabled
+- a primary `entry`
+- `additionalEntryPoints` for migration-style or extra entry files
+- directory-based Nx outputs
+- `cliArgs` as an advanced Bun CLI escape hatch
 
 ### JSX example app
 
@@ -88,12 +88,12 @@ Shared helpers are kept small and focused.
 
 Examples:
 
-* Bun binary resolution
-* option validation
-* argument building
-* build entry normalization
-* working directory resolution
-* child-process execution
+- Bun binary resolution
+- option validation
+- argument building
+- build entry normalization
+- working directory resolution
+- child-process execution
 
 ## Outputs
 
