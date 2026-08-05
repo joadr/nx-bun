@@ -42,6 +42,8 @@ As a user, I want Bun to run after a build target when I need compiled output, b
 
 For build-first targets, `buildTarget` points to the Nx task that produces the bundle, and `run` launches the inferred primary output from that target's declared `outputs`.
 
+The inference supports common Nx output placeholders such as `{projectRoot}`, `{workspaceRoot}`, and `{options.outputPath}`.
+
 ### Watch mode
 
 As a user, I want the `serve` target to keep rebuilding and restarting when source files change.
