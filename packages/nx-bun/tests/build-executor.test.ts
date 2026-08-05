@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import buildExecutor from "../src/executors/build/executor";
+import buildExecutor, { buildCliArgs } from "../src/executors/build/executor";
 
 function makeTempProject(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "nx-bun-build-"));
@@ -109,4 +109,24 @@ test("build executor accepts workspace-root-relative entry paths", async () => {
   expect(
     fs.existsSync(path.join(root, "apps", "accounts", "dist", "main.js")),
   ).toBe(true);
+});
+
+test("build executor defaults CLI target to bun", () => {
+  const args = buildCliArgs(
+    [
+      {
+        name: "main",
+        sourcePath: "/tmp/main.ts",
+        shimPath: "/tmp/shims/main.ts",
+      },
+    ],
+    "dist",
+    {
+      entry: "src/main.ts",
+      outputPath: "dist",
+    },
+  );
+
+  expect(args).toContain("--target");
+  expect(args).toContain("bun");
 });

@@ -64,7 +64,7 @@
     },
     "target": {
       "type": "string",
-      "description": "Compilation target"
+      "description": "Compilation target (defaults to bun)"
     },
     "define": {
       "type": "object",

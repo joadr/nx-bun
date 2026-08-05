@@ -18,6 +18,7 @@ export interface BuildExecutorOptions {
   minify?: boolean;
   sourcemap?: boolean | "inline" | "external";
   splitting?: boolean;
+  target?: string;
   define?: Record<string, string>;
   naming?: string;
   publicPath?: string;
@@ -66,6 +67,10 @@ function validateOptions(options: BuildExecutorOptions): void {
     typeof options.generatePackageJson !== "boolean"
   ) {
     throw new Error('"generatePackageJson" must be a boolean when provided.');
+  }
+
+  if (options.target !== undefined && !isNonEmptyString(options.target)) {
+    throw new Error('"target" must be a non-empty string when provided.');
   }
 }
 
@@ -220,7 +225,7 @@ function generatePackageJsonIfRequested(
   });
 }
 
-function buildCliArgs(
+export function buildCliArgs(
   entryPoints: NormalizedEntryPoint[],
   outputPath: string,
   options: BuildExecutorOptions,
@@ -255,6 +260,8 @@ function buildCliArgs(
   if (options.splitting) {
     args.push("--splitting");
   }
+
+  args.push("--target", options.target ?? "bun");
 
   if (options.define) {
     for (const [key, value] of Object.entries(options.define)) {
@@ -329,6 +336,7 @@ async function runApi(
     minify: options.minify,
     sourcemap: options.sourcemap,
     splitting: options.splitting,
+    target: options.target ?? "bun",
     define: options.define,
     naming: options.naming,
     publicPath: options.publicPath,

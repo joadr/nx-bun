@@ -16,6 +16,9 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 - `minify`: enable minification
 - `sourcemap`: source map mode
 - `splitting`: enable code splitting
+
+* `target`: Bun compilation target, defaults to `bun`
+
 - `define`: compile-time replacements
 - `naming`: output naming pattern
 - `publicPath`: runtime asset prefix
@@ -32,6 +35,9 @@ It is API-first when `Bun.build()` is available and falls back to the Bun CLI wh
 - support multiple entry bundles for scripts and migrations
 - preserve a simple option surface
 - optionally emit a deployable `package.json`
+
+* default to a server-friendly Bun build target
+
 - allow advanced Bun CLI customization when `useCli` is enabled
 - return `success: false` on build failure
 - support watch mode for continuous rebuilds
