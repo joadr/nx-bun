@@ -19,14 +19,14 @@
       }
     },
     "selftest-source": {
-      "executor": "nx-bun:run",
+      "executor": "@joadr/nx-bun:run",
       "dependsOn": ["build"],
       "options": {
         "entry": "tests/selftest-source.ts"
       }
     },
     "selftest": {
-      "executor": "nx-bun:run",
+      "executor": "@joadr/nx-bun:run",
       "dependsOn": ["build"],
       "options": {
         "buildTarget": "build"

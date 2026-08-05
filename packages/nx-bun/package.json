@@ -1,5 +1,5 @@
 {
-  "name": "nx-bun",
+  "name": "@joadr/nx-bun",
   "version": "0.0.1",
   "description": "An Nx plugin for Bun",
   "license": "MIT",

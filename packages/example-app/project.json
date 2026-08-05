@@ -6,7 +6,7 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "nx-bun:build",
+      "executor": "@joadr/nx-bun:build",
       "continuous": true,
       "dependsOn": [
         {
@@ -29,7 +29,7 @@
       "outputs": ["{projectRoot}/dist"]
     },
     "serve": {
-      "executor": "nx-bun:run",
+      "executor": "@joadr/nx-bun:run",
       "continuous": true,
       "dependsOn": [
         {
@@ -43,7 +43,7 @@
       }
     },
     "serve-source": {
-      "executor": "nx-bun:run",
+      "executor": "@joadr/nx-bun:run",
       "continuous": true,
       "dependsOn": [
         {
