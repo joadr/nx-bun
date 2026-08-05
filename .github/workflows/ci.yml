@@ -33,7 +33,7 @@ jobs:
         run: npx nx run nx-bun:test
 
       - name: Build example app
-        run: npx nx run example-app:build
+        run: npx nx run example-app:build --watch=false
 
       - name: Run JSX example tests
         run: npx nx run jsx-example-app:test
