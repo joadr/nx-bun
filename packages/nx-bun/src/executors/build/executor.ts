@@ -3,7 +3,10 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { writeGeneratedPackageJson } from "./package-json";
+import {
+  collectRuntimeDependencies,
+  writeGeneratedPackageJson,
+} from "./package-json";
 
 type EntryPointInput = string | { name: string; path: string };
 
@@ -225,10 +228,27 @@ function generatePackageJsonIfRequested(
   });
 }
 
+export function resolveBuildExternalDependencies(
+  options: BuildExecutorOptions,
+  context: ExecutorContext,
+): string[] {
+  if (options.target === "browser") {
+    return options.external ?? [];
+  }
+
+  return Array.from(
+    collectRuntimeDependencies({
+      context,
+      external: options.external,
+    }).keys(),
+  );
+}
+
 export function buildCliArgs(
   entryPoints: NormalizedEntryPoint[],
   outputPath: string,
   options: BuildExecutorOptions,
+  externalDependencies: string[],
 ): string[] {
   const args = [
     "build",
@@ -239,8 +259,8 @@ export function buildCliArgs(
     args.push("--watch");
   }
 
-  if (options.external) {
-    for (const external of options.external) {
+  for (const external of externalDependencies) {
+    if (external) {
       args.push("--external", external);
     }
   }
@@ -291,11 +311,16 @@ async function runCli(
   outputPath: string,
   options: BuildExecutorOptions,
   projectRoot: string,
+  externalDependencies: string[],
 ): Promise<boolean> {
-  const bun = spawn("bun", buildCliArgs(entryPoints, outputPath, options), {
-    cwd: projectRoot,
-    stdio: "inherit",
-  });
+  const bun = spawn(
+    "bun",
+    buildCliArgs(entryPoints, outputPath, options, externalDependencies),
+    {
+      cwd: projectRoot,
+      stdio: "inherit",
+    },
+  );
 
   return new Promise((resolve) => {
     bun.once("error", (error) => {
@@ -313,6 +338,7 @@ async function runApi(
   entryPoints: NormalizedEntryPoint[],
   outputPath: string,
   options: BuildExecutorOptions,
+  context: ExecutorContext,
 ): Promise<boolean> {
   const bun = (
     globalThis as {
@@ -331,7 +357,7 @@ async function runApi(
   const result = await bun.build({
     entrypoints: entryPoints.map((entryPoint) => entryPoint.shimPath),
     outdir: outputPath,
-    external: options.external,
+    external: resolveBuildExternalDependencies(options, context),
     format: options.format,
     minify: options.minify,
     sourcemap: options.sourcemap,
@@ -366,6 +392,10 @@ export default async function buildExecutor(
     projectRoot,
     path.resolve(context.root ?? "."),
   );
+  const externalDependencies = resolveBuildExternalDependencies(
+    options,
+    context,
+  );
   const shimRoot = fs.mkdtempSync(path.join(os.tmpdir(), "nx-bun-build-"));
   const shims = createEntryShims(entryPoints, shimRoot);
 
@@ -375,13 +405,29 @@ export default async function buildExecutor(
     }
 
     if (options.useCli || options.watch) {
-      return { success: await runCli(shims, outputPath, options, projectRoot) };
+      return {
+        success: await runCli(
+          shims,
+          outputPath,
+          options,
+          projectRoot,
+          externalDependencies,
+        ),
+      };
     }
 
-    const success = await runApi(shims, outputPath, options);
+    const success = await runApi(shims, outputPath, options, context);
 
     if (!success && !options.useCli) {
-      return { success: await runCli(shims, outputPath, options, projectRoot) };
+      return {
+        success: await runCli(
+          shims,
+          outputPath,
+          options,
+          projectRoot,
+          externalDependencies,
+        ),
+      };
     }
 
     return { success };

@@ -2,12 +2,20 @@ import { expect, test } from "bun:test";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import buildExecutor, { buildCliArgs } from "../src/executors/build/executor";
+import buildExecutor, {
+  buildCliArgs,
+  resolveBuildExternalDependencies,
+} from "../src/executors/build/executor";
 
 function makeTempProject(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "nx-bun-build-"));
   fs.mkdirSync(path.join(root, "src"), { recursive: true });
   fs.mkdirSync(path.join(root, "db", "migrations"), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, "package.json"),
+    '{\n  "name": "temp-project"\n}\n',
+    "utf8",
+  );
 
   fs.writeFileSync(
     path.join(root, "src", "main.ts"),
@@ -26,6 +34,11 @@ function makeTempProject(): string {
 function makeNestedTempProject(): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "nx-bun-build-"));
   fs.mkdirSync(path.join(root, "apps", "accounts", "src"), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, "package.json"),
+    '{\n  "name": "temp-project"\n}\n',
+    "utf8",
+  );
 
   fs.writeFileSync(
     path.join(root, "apps", "accounts", "src", "main.ts"),
@@ -125,8 +138,32 @@ test("build executor defaults CLI target to bun", () => {
       entry: "src/main.ts",
       outputPath: "dist",
     },
+    [],
   );
 
   expect(args).toContain("--target");
   expect(args).toContain("bun");
+});
+
+test("build executor infers runtime externals by default", () => {
+  const root = makeTempProject();
+
+  fs.writeFileSync(
+    path.join(root, "package.json"),
+    JSON.stringify({
+      name: "temp-project",
+      dependencies: { leftpad: "1.3.0" },
+    }),
+    "utf8",
+  );
+
+  const externalDependencies = resolveBuildExternalDependencies(
+    {
+      entry: "src/main.ts",
+      outputPath: "dist",
+    },
+    makeContext(root),
+  );
+
+  expect(externalDependencies).toContain("leftpad");
 });
