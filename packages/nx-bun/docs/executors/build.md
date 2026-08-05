@@ -43,25 +43,26 @@ Transpile Bun entry files for Nx projects.
 
 ## Options
 
-| Option                  | Type                               | Required | Default     | Description                                                                     |
-| ----------------------- | ---------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------- |
-| `entry`                 | `string`                           | yes      | -           | Primary Bun entry file to build.                                                |
-| `outputPath`            | `string`                           | yes      | -           | Output directory for artifacts. Relative to the workspace root unless absolute. |
-| `additionalEntryPoints` | `{ name: string; path: string }[]` | no       | `[]`        | Extra entry files or named descriptors.                                         |
-| `external`              | `string[]`                         | no       | `[]`        | Packages or paths to exclude.                                                   |
-| `format`                | `string`                           | no       | `undefined` | Bun output format.                                                              |
-| `minify`                | `boolean`                          | no       | `false`     | Enable minification.                                                            |
-| `sourcemap`             | `string`                           | no       | `undefined` | Source map mode.                                                                |
-| `splitting`             | `boolean`                          | no       | `false`     | Enable code splitting.                                                          |
-| `target`                | `string`                           | no       | `bun`       | Bun compilation target.                                                         |
-| `define`                | `Record<string, string>`           | no       | `{}`        | Compile-time replacements.                                                      |
-| `naming`                | `string`                           | no       | `undefined` | Output naming pattern.                                                          |
-| `publicPath`            | `string`                           | no       | `undefined` | Runtime asset prefix.                                                           |
-| `bundle`                | `boolean`                          | no       | `false`     | Enable Bun bundling instead of transpile-only output.                           |
-| `compile`               | `boolean`                          | no       | `false`     | Build standalone Bun executables.                                               |
-| `cliArgs`               | `string[]`                         | no       | `[]`        | Extra Bun CLI flags.                                                            |
-| `generatePackageJson`   | `boolean`                          | no       | `false`     | Write a pruned `package.json` into the output directory.                        |
-| `watch`                 | `boolean`                          | no       | `false`     | Keep rebuilding on file changes.                                                |
+| Option                  | Type                               | Required                               | Default     | Description                                                                     |
+| ----------------------- | ---------------------------------- | -------------------------------------- | ----------- | ------------------------------------------------------------------------------- |
+| `entry`                 | `string`                           | yes                                    | -           | Primary Bun entry file to build.                                                |
+| `outputPath`            | `string`                           | yes                                    | -           | Output directory for artifacts. Relative to the workspace root unless absolute. |
+| `additionalEntryPoints` | `{ name: string; path: string }[]` | no                                     | `[]`        | Extra entry files or named descriptors.                                         |
+| `external`              | `string[]`                         | no                                     | `[]`        | Packages or paths to exclude.                                                   |
+| `format`                | `string`                           | no                                     | `undefined` | Bun output format.                                                              |
+| `minify`                | `boolean`                          | no                                     | `false`     | Enable minification.                                                            |
+| `sourcemap`             | `string`                           | no                                     | `undefined` | Source map mode.                                                                |
+| `splitting`             | `boolean`                          | no                                     | `false`     | Enable code splitting.                                                          |
+| `target`                | `string`                           | no                                     | `bun`       | Bun compilation target.                                                         |
+| `define`                | `Record<string, string>`           | no                                     | `{}`        | Compile-time replacements.                                                      |
+| `naming`                | `string`                           | no                                     | `undefined` | Output naming pattern.                                                          |
+| `publicPath`            | `string`                           | no                                     | `undefined` | Runtime asset prefix.                                                           |
+| `bundle`                | `boolean`                          | no                                     | `false`     | Enable Bun bundling instead of transpile-only output.                           |
+| `compile`               | `boolean`                          | no                                     | `false`     | Build standalone Bun executables.                                               |
+| `assets`                | `(string                           | { input: string; output?: string })[]` | no          | `[]`                                                                            | Files or directories to copy into the output path. |
+| `cliArgs`               | `string[]`                         | no                                     | `[]`        | Extra Bun CLI flags.                                                            |
+| `generatePackageJson`   | `boolean`                          | no                                     | `false`     | Write a pruned `package.json` into the output directory.                        |
+| `watch`                 | `boolean`                          | no                                     | `false`     | Keep rebuilding on file changes.                                                |
 
 ## Behavior
 
@@ -71,6 +72,7 @@ Transpile Bun entry files for Nx projects.
 - Support multiple entry files for scripts and migrations.
 - Support bundling only when `bundle: true` is set.
 - Support standalone executables when `compile: true` is set.
+- Copy declared assets into the output directory.
 - Return `success: false` on build failure.
 
 ## Output Contract
@@ -79,6 +81,7 @@ Transpile Bun entry files for Nx projects.
 - Nx `outputs` should point at the output directory, not individual files.
 - Transpiled output writes `main.js` into the resolved output directory.
 - Compiled executables are written into the resolved output directory using the entry name.
+- Use `assets` to copy HTML shells and static files for browser bundles.
 
 ## Notes
 

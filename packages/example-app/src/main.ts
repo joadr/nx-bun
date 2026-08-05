@@ -1,9 +1,11 @@
-console.log('example-app: hello from Bun!');
+import Bun from "bun";
+
+console.log("example-app: hello from Bun!");
 
 Bun.serve({
   port: 8080,
   async fetch(request: Request): Promise<Response> {
-    return new Response('Hello World from bun!');
+    return new Response("Hello World from bun!");
   },
 });
 

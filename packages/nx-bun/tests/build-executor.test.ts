@@ -24,6 +24,11 @@ function makeTempProject(): string {
     "utf8",
   );
   fs.writeFileSync(
+    path.join(root, "src", "index.prod.html"),
+    '<!doctype html><html><body><div id="root"></div></body></html>\n',
+    "utf8",
+  );
+  fs.writeFileSync(
     path.join(root, "db", "migrations", "Migration20250331154716.ts"),
     "console.log('hello from migration');\n",
     "utf8",
@@ -178,6 +183,24 @@ test("build executor can compile executables when requested", async () => {
 
   expect(result.success).toBe(true);
   expect(fs.existsSync(path.join(root, "dist", "main"))).toBe(true);
+});
+
+test("build executor copies declared assets", async () => {
+  const root = makeTempProject();
+
+  const result = await buildExecutor(
+    {
+      entry: "src/main.ts",
+      outputPath: "dist",
+      bundle: true,
+      target: "browser",
+      assets: [{ input: "src/index.prod.html", output: "index.html" }],
+    },
+    makeContext(root),
+  );
+
+  expect(result.success).toBe(true);
+  expect(fs.existsSync(path.join(root, "dist", "index.html"))).toBe(true);
 });
 
 test("build executor defaults CLI target to bun", () => {

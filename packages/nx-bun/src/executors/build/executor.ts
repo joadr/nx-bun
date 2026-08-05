@@ -9,6 +9,7 @@ import {
 } from "./package-json";
 
 type EntryPointInput = string | { name: string; path: string };
+type AssetInput = string | { input: string; output?: string };
 
 export interface BuildExecutorOptions {
   entry: string;
@@ -27,6 +28,7 @@ export interface BuildExecutorOptions {
   publicPath?: string;
   bundle?: boolean;
   compile?: boolean;
+  assets?: AssetInput[];
   watch?: boolean;
 }
 
@@ -91,6 +93,29 @@ function validateOptions(options: BuildExecutorOptions): void {
 
   if (options.compile && options.publicPath) {
     throw new Error('"publicPath" is not supported when "compile" is enabled.');
+  }
+
+  if (options.assets !== undefined) {
+    if (!Array.isArray(options.assets)) {
+      throw new Error('"assets" must be an array when provided.');
+    }
+
+    for (const asset of options.assets) {
+      if (typeof asset === "string") {
+        continue;
+      }
+
+      if (
+        !asset ||
+        typeof asset !== "object" ||
+        !isNonEmptyString(asset.input) ||
+        (asset.output !== undefined && !isNonEmptyString(asset.output))
+      ) {
+        throw new Error(
+          '"assets" entries must be strings or objects with a non-empty "input" and optional non-empty "output".',
+        );
+      }
+    }
   }
 }
 
@@ -281,6 +306,53 @@ function generatePackageJsonIfRequested(
     outputPath,
     external: options.external,
   });
+}
+
+function copyDirectory(sourceDir: string, destinationDir: string): void {
+  fs.mkdirSync(destinationDir, { recursive: true });
+
+  for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
+    const sourcePath = path.join(sourceDir, entry.name);
+    const destinationPath = path.join(destinationDir, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirectory(sourcePath, destinationPath);
+      continue;
+    }
+
+    if (entry.isFile()) {
+      fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+      fs.copyFileSync(sourcePath, destinationPath);
+    }
+  }
+}
+
+function copyAssetsIfRequested(
+  options: BuildExecutorOptions,
+  projectRoot: string,
+  workspaceRoot: string,
+  outputPath: string,
+): void {
+  for (const asset of options.assets ?? []) {
+    const inputPath =
+      typeof asset === "string"
+        ? resolveProjectPath(projectRoot, workspaceRoot, asset)
+        : resolveProjectPath(projectRoot, workspaceRoot, asset.input);
+    const stat = fs.statSync(inputPath);
+    const outputRelativePath =
+      typeof asset === "string"
+        ? path.basename(inputPath)
+        : (asset.output ?? path.basename(inputPath));
+    const destinationPath = path.join(outputPath, outputRelativePath);
+
+    if (stat.isDirectory()) {
+      copyDirectory(inputPath, destinationPath);
+      continue;
+    }
+
+    fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+    fs.copyFileSync(inputPath, destinationPath);
+  }
 }
 
 type BuildMode = "transpile" | "bundle" | "compile";
@@ -549,15 +621,19 @@ export default async function buildExecutor(
       generatePackageJsonIfRequested(options, context, outputPath);
     }
 
-    return {
-      success: await runCli(
-        shims,
-        workspaceRoot,
-        outputPath,
-        options,
-        externalDependencies,
-      ),
-    };
+    const success = await runCli(
+      shims,
+      workspaceRoot,
+      outputPath,
+      options,
+      externalDependencies,
+    );
+
+    if (success) {
+      copyAssetsIfRequested(options, projectRoot, workspaceRoot, outputPath);
+    }
+
+    return { success };
   } finally {
     fs.rmSync(shimRoot, { recursive: true, force: true });
   }

@@ -10,6 +10,12 @@ This repo contains the `@joadr/nx-bun` Nx plugin and example apps used to exerci
 - `run` launches Bun scripts or entry files.
 - `test` runs `bun test`.
 
+## Example Apps
+
+- `packages/example-app` is the Bun app used as a live consumer example.
+- `packages/jsx-example-app` is a TSX rendering example without React.
+- `packages/jsx-client-example-app` is a client-only React example with Bun dev-server HMR.
+
 ## Docs
 
 - [Docs index](packages/nx-bun/docs/index.md)

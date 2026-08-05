@@ -20,6 +20,7 @@ This is the main docs hub for `@joadr/nx-bun`.
 
 - [Workspace README quickstarts](../../README.md#quickstart)
 - [Package README quickstarts](../README.md#quickstart)
+- [JSX client example app](../../packages/jsx-client-example-app/README.md)
 
 ## Reference
 

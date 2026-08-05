@@ -89,6 +89,30 @@
       "type": "boolean",
       "description": "Build standalone Bun executables"
     },
+    "assets": {
+      "type": "array",
+      "description": "Files or directories to copy into the output path",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "string"
+              },
+              "output": {
+                "type": "string"
+              }
+            },
+            "required": ["input"],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
     "cliArgs": {
       "type": "array",
       "description": "Additional Bun CLI flags",

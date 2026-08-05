@@ -83,6 +83,7 @@ For GitHub Actions publishing, use npm Trusted Publishing instead of an `NPM_TOK
 - support for extra entry points, including migration files
 - Bun CLI flags for advanced `build` customization
 - optional pruned `package.json` generation for deployable builds
+- a client-only React example app in `packages/jsx-client-example-app`
 
 ## Docs
 

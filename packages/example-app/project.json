@@ -22,11 +22,11 @@
             "path": "db/migrations/Migration20250331154716.ts"
           }
         ],
-        "outputPath": "dist",
+        "outputPath": "{projectRoot}/dist/example-app",
         "generatePackageJson": true,
         "watch": true
       },
-      "outputs": ["{projectRoot}/dist"]
+      "outputs": ["{projectRoot}/dist/example-app"]
     },
     "serve": {
       "executor": "@joadr/nx-bun:run",

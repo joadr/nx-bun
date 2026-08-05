@@ -1,0 +1,118 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: Inter, system-ui, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 32%),
+    radial-gradient(circle at top right, rgba(192, 132, 252, 0.12), transparent 30%),
+    linear-gradient(180deg, #020617, #0f172a 45%, #111827);
+  color: #e2e8f0;
+}
+
+.app-shell {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #67e8f9;
+  font-size: 0.8rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.5rem, 8vw, 4.75rem);
+  line-height: 0.95;
+}
+
+.lede {
+  max-width: 36rem;
+  line-height: 1.7;
+  color: #cbd5e1;
+}
+
+.status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(103, 232, 249, 0.25);
+  background: rgba(8, 145, 178, 0.16);
+  color: #cffafe;
+  font-size: 0.84rem;
+}
+
+.status-pill-muted {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.6);
+  color: #cbd5e1;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.panel {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.72);
+  padding: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.panel span {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.panel strong {
+  font-size: 2rem;
+}
+
+.mono-line {
+  color: #93c5fd;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88rem;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  color: #020617;
+  background: linear-gradient(135deg, #67e8f9, #c084fc);
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .panel-grid {
+    grid-template-columns: 1fr;
+  }
+}

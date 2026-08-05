@@ -1,0 +1,45 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "jsx-client-example-app",
+  "root": "packages/jsx-client-example-app",
+  "sourceRoot": "src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@joadr/nx-bun:build",
+      "options": {
+        "entry": "src/main.tsx",
+        "outputPath": "{workspaceRoot}/dist/packages/jsx-client-example-app",
+        "bundle": true,
+        "target": "browser",
+        "assets": [
+          {
+            "input": "src/index.prod.html",
+            "output": "index.html"
+          },
+          {
+            "input": "src/styles.css",
+            "output": "styles.css"
+          }
+        ]
+      },
+      "outputs": ["{workspaceRoot}/dist/packages/jsx-client-example-app"]
+    },
+    "serve": {
+      "executor": "@joadr/nx-bun:run",
+      "continuous": true,
+      "options": {
+        "entry": "src/dev-server.ts",
+        "watch": true
+      }
+    },
+    "serve-source": {
+      "executor": "@joadr/nx-bun:run",
+      "continuous": true,
+      "options": {
+        "entry": "src/dev-server.ts",
+        "watch": true
+      }
+    }
+  }
+}
