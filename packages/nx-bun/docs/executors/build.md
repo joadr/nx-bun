@@ -1,88 +1,71 @@
-# `build` Executor Specification
+# `build` Executor
 
 ## Purpose
 
-The `build` executor transpiles Bun entry files for Nx projects.
+Transpile Bun entry files for Nx projects.
 
-It shells out to the Bun CLI, uses `--no-bundle`, and keeps the output path aligned with Nx's workspace-root-relative `outputPath` contract.
+`build` uses the Bun CLI in transpile-only mode by default, and keeps `outputPath` aligned with the workspace-root-relative Nx contract.
 
-## Options
-
-- `entry`: primary Bun entry file to build
-- `outputPath`: output directory for artifacts, relative to the workspace root unless absolute
-- `additionalEntryPoints`: extra Bun entry files or named entry descriptors
-- `external`: packages or paths to exclude
-- `format`: bundle format
-- `minify`: enable minification
-- `sourcemap`: source map mode
-- `splitting`: enable code splitting
-
-* `target`: Bun compilation target, defaults to `bun`
-
-- `define`: compile-time replacements
-- `naming`: output naming pattern
-- `publicPath`: runtime asset prefix
-- `bundle`: enable Bun bundling instead of transpile-only output
-- `cliArgs`: extra Bun CLI flags
-- `generatePackageJson`: write a pruned `package.json` into the output directory
-- `watch`: keep rebuilding on file changes
-
-## Expected behavior
-
-- resolve entries from project or workspace paths
-- transpile artifacts into the declared workspace-root-relative output directory
-- keep the output directory aligned with the Nx `outputs` contract
-- support multiple entry files for scripts and migrations
-- preserve a simple option surface
-- optionally emit a deployable `package.json`
-
-- default to a server-friendly Bun build target
-- support bundling as an opt-in mode
-- allow advanced Bun CLI customization through Bun CLI flags
-- return `success: false` on build failure
-- support watch mode for continuous rebuilds
-
-## Current Workspace Example
+## Quickstart
 
 ```json
 {
   "targets": {
     "build": {
       "executor": "@joadr/nx-bun:build",
-      "continuous": true,
       "options": {
         "entry": "src/main.ts",
-        "additionalEntryPoints": [
-          {
-            "name": "db/migrations/migration0",
-            "path": "db/migrations/Migration20250331154716.ts"
-          }
-        ],
-        "outputPath": "dist/apps/example",
-        "generatePackageJson": true,
-        "cliArgs": ["--compile", "--bytecode"],
-        "watch": true
+        "outputPath": "{workspaceRoot}/dist/apps/example-app"
       },
-      "outputs": ["{workspaceRoot}/dist/apps/example"]
+      "outputs": ["{workspaceRoot}/dist/apps/example-app"]
     }
   }
 }
 ```
 
-Expected output:
+## Options
 
-- `dist/apps/example/main.js`
-- `dist/apps/example/db/migrations/migration0.js`
-- `dist/apps/example/package.json`
+| Option                  | Type                               | Required | Default     | Description                                                                     |
+| ----------------------- | ---------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------- |
+| `entry`                 | `string`                           | yes      | -           | Primary Bun entry file to build.                                                |
+| `outputPath`            | `string`                           | yes      | -           | Output directory for artifacts. Relative to the workspace root unless absolute. |
+| `additionalEntryPoints` | `{ name: string; path: string }[]` | no       | `[]`        | Extra entry files or named descriptors.                                         |
+| `external`              | `string[]`                         | no       | `[]`        | Packages or paths to exclude.                                                   |
+| `format`                | `string`                           | no       | `undefined` | Bun output format.                                                              |
+| `minify`                | `boolean`                          | no       | `false`     | Enable minification.                                                            |
+| `sourcemap`             | `string`                           | no       | `undefined` | Source map mode.                                                                |
+| `splitting`             | `boolean`                          | no       | `false`     | Enable code splitting.                                                          |
+| `target`                | `string`                           | no       | `bun`       | Bun compilation target.                                                         |
+| `define`                | `Record<string, string>`           | no       | `{}`        | Compile-time replacements.                                                      |
+| `naming`                | `string`                           | no       | `undefined` | Output naming pattern.                                                          |
+| `publicPath`            | `string`                           | no       | `undefined` | Runtime asset prefix.                                                           |
+| `bundle`                | `boolean`                          | no       | `false`     | Enable Bun bundling instead of transpile-only output.                           |
+| `cliArgs`               | `string[]`                         | no       | `[]`        | Extra Bun CLI flags.                                                            |
+| `generatePackageJson`   | `boolean`                          | no       | `false`     | Write a pruned `package.json` into the output directory.                        |
+| `watch`                 | `boolean`                          | no       | `false`     | Keep rebuilding on file changes.                                                |
 
-## Package Json Generation
+## Behavior
 
-When `generatePackageJson` is enabled, `@joadr/nx-bun:build` writes a pruned `package.json` next to the build output.
+- Resolve entries from project or workspace paths.
+- Transpile artifacts into the declared output directory.
+- Keep the output directory aligned with the Nx `outputs` contract.
+- Support multiple entry files for scripts and migrations.
+- Support bundling only when `bundle: true` is set.
+- Return `success: false` on build failure.
 
-The generated manifest keeps the workspace package name/version metadata and runtime dependencies, while removing scripts and development-only dependencies.
+## Output Contract
 
-## Advanced CLI Escape Hatch
+- `outputPath` is workspace-root-relative by default.
+- Nx `outputs` should point at the output directory, not individual files.
+- Transpiled output writes `main.js` into the resolved output directory.
 
-`cliArgs` is only applied when the executor uses Bun CLI mode.
+## Notes
 
-Use it for Bun flags that are not represented by the structured executor options.
+- Use `generatePackageJson` when you need a deployable manifest next to the build output.
+- Use `cliArgs` only for Bun flags not covered by structured options.
+
+## Related Docs
+
+- [run executor](run.md) for build-first launch flows.
+- [Architecture](../architecture.md)
+- [Decisions](../decisions.md)

@@ -1,39 +1,25 @@
 # nx-bun Workspace
 
-This repo contains the `@joadr/nx-bun` Nx plugin and a small example app used to exercise it.
+This repo contains the `@joadr/nx-bun` Nx plugin and example apps used to exercise it.
 
-## Layout
+## What It Is
 
-- `packages/nx-bun` contains the plugin source, executors, and package docs.
-- `packages/example-app` is the Bun app used as a live consumer example.
-- `packages/jsx-example-app` is a TSX rendering example that shows JSX without React.
+`@joadr/nx-bun` provides thin Nx executors for Bun workflows.
 
-## What `@joadr/nx-bun` Does
-
-`@joadr/nx-bun` provides Nx executors for Bun workflows.
-
-- `build` transpiles Bun entry files with Bun.
+- `build` transpiles Bun entry files.
 - `run` launches Bun scripts or entry files.
-- `run` can also launch built output via `buildTarget`.
-- `build` supports extra entry points for things like migrations.
-- `build` can optionally emit a pruned `package.json` for deployment.
-- The workspace also includes a TSX server-rendering example to exercise JSX support.
+- `test` runs `bun test`.
 
-The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
+## Docs
 
-## Current Workspace Targets
+- [Docs index](packages/nx-bun/docs/index.md)
+- [Architecture](packages/nx-bun/docs/architecture.md)
+- [Decisions](packages/nx-bun/docs/decisions.md)
+- [Roadmap](packages/nx-bun/docs/roadmap.md)
 
-- `nx run example-app:build` builds the example app and migration bundle.
-- `nx run example-app:serve` builds first, then launches the built app in watch mode.
-- `nx run example-app:serve-source` runs the source entry directly in watch mode.
-- `nx run jsx-example-app:test` runs the TSX example tests.
-- `nx run nx-bun:test` runs the plugin tests.
-- `nx run nx-bun:selftest` exercises the built plugin.
-- `nx run nx-bun:selftest-source` exercises the source plugin.
+## Quickstart
 
-## Quick Start
-
-### Build a Bun app
+### Build
 
 ```json
 {
@@ -42,15 +28,15 @@ The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
       "executor": "@joadr/nx-bun:build",
       "options": {
         "entry": "src/main.ts",
-        "outputPath": "dist"
+        "outputPath": "{workspaceRoot}/dist/apps/example-app"
       },
-      "outputs": ["{projectRoot}/dist"]
+      "outputs": ["{workspaceRoot}/dist/apps/example-app"]
     }
   }
 }
 ```
 
-### Run a Bun entry file
+### Run
 
 ```json
 {
@@ -66,7 +52,7 @@ The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
 }
 ```
 
-### Run Bun tests
+### Test
 
 ```json
 {
@@ -81,47 +67,13 @@ The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
 }
 ```
 
-```bash
-npx nx run example-app:build
-npx nx run example-app:serve
-npx nx run example-app:serve-source
-npx nx run jsx-example-app:test
-```
+## Which Executor Should I Use?
 
-## How The Plugin Works
+- Use `build` to transpile Bun entry files into `dist`.
+- Use `run` to execute Bun scripts or source files.
+- Use `test` to run `bun test` from Nx.
 
-- `build` shells out to the Bun CLI.
-- `outputPath` is workspace-root-relative, matching standard Nx build targets.
-- `run` executes `bun` directly for scripts or entry files.
-- `run` can use `buildTarget` to launch built output from a prior Nx task.
-- `watch` keeps build and serve targets continuous.
-
-## Bun Build Notes
-
-- `entry` is the primary Bun entry point.
-- `additionalEntryPoints` supports extra entry files, including migration-style scripts.
-- `outputPath` is the Bun output directory.
-- Nx `outputs` stay directory-based for now.
-
-## Documentation
-
-- `packages/nx-bun/README.md`
-- `packages/nx-bun/docs/executors/build.md`
-- `packages/nx-bun/docs/executors/run.md`
-- `packages/nx-bun/docs/executors/test.md`
-
-## Status
-
-The workspace is functional and actively under development.
-
-## Publish
-
-The npm package name is `@joadr/nx-bun`.
-
-For GitHub Actions publishing, use npm Trusted Publishing instead of an `NPM_TOKEN` secret.
-Configure the package in npm to trust this repository, then run the manual `Release` workflow with a version input.
-
-Install it with:
+## Install
 
 ```bash
 bun add -d @joadr/nx-bun
@@ -132,3 +84,11 @@ Or with npm:
 ```bash
 npm install -D @joadr/nx-bun
 ```
+
+## Publish
+
+For GitHub Actions publishing, use npm Trusted Publishing instead of an `NPM_TOKEN` secret.
+
+## Thanks
+
+Thanks to [Jordan-Hall's `nx-bun`](https://github.com/Jordan-Hall/nx-bun) for inspiring this project.

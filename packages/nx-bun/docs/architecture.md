@@ -1,6 +1,6 @@
-# ARCHITECTURE
+# Architecture
 
-This document describes the current architecture of `nx-bun`.
+This document describes the current structure of `nx-bun`.
 
 ## Overview
 
@@ -13,56 +13,13 @@ It favors:
 - Bun-native behavior
 - small executors with shared helpers
 
+## Executors
+
+- [build](executors/build.md)
+- [run](executors/run.md)
+- [test](executors/test.md)
+
 ## Package Shape
-
-Current executors:
-
-- `run`
-- `build`
-- `test`
-
-Planned later:
-
-- `dev`
-- `test`
-- generators
-
-## Execution Model
-
-### `run`
-
-`run` launches Bun directly.
-
-It supports:
-
-- `script` mode for `bun run <script>`
-- `entry` mode for direct source execution
-- `buildTarget` mode for build-first launch flows
-- `watch` for long-running source or built-output execution
-
-### `build`
-
-`build` transpiles Bun entry files.
-
-It is:
-
-- CLI-based
-- workspace-root-relative for `outputPath`
-
-It supports:
-
-- a primary `entry`
-- `additionalEntryPoints` for migration-style or extra entry files
-- directory-based Nx outputs
-- `cliArgs` as an advanced Bun CLI escape hatch
-
-### JSX example app
-
-The workspace includes `jsx-example-app` as a TSX rendering example.
-
-It uses a custom JSX factory and a small HTML renderer, so JSX syntax here does not imply React.
-
-## Layout
 
 Current package layout:
 
@@ -82,9 +39,15 @@ src/
   index.ts
 ```
 
+## Execution Model
+
+- `run` launches Bun directly.
+- `build` transpiles Bun entry files.
+- `test` wraps `bun test`.
+
 ## Shared Utilities
 
-Shared helpers are kept small and focused.
+Shared helpers stay small and focused.
 
 Examples:
 
@@ -110,3 +73,9 @@ When choosing behavior, prefer the option that:
 3. avoids hidden inference
 4. stays easy to test
 5. stays easy to document
+
+## Related Docs
+
+- [Docs index](index.md)
+- [Decisions](decisions.md)
+- [Roadmap](roadmap.md)

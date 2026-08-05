@@ -1,4 +1,4 @@
-# DECISIONS
+# Decisions
 
 This document records important architectural and product decisions for `nx-bun`.
 
@@ -28,6 +28,10 @@ Recent Nx versions no longer center customization around custom task runners. A 
 - deep task orchestration customization is out of scope
 - some older Bun integration patterns will not be preserved
 
+### Related docs
+
+- [Architecture](architecture.md)
+
 ## Decision 0002: Thin-wrapper-first implementation strategy
 
 ### Status
@@ -54,6 +58,12 @@ A thin-wrapper approach keeps the plugin simple, understandable, and more resili
 - documentation stays straightforward
 - advanced features can be deferred until real demand appears
 
+### Related docs
+
+- [build](executors/build.md)
+- [run](executors/run.md)
+- [test](executors/test.md)
+
 ## Decision 0003: Start with executors before generators
 
 ### Status
@@ -77,6 +87,11 @@ Executors validate the core technical value of the plugin: running Bun workflows
 
 - the first meaningful implementation milestone is a working `run` executor
 - generators will be designed around proven executor behavior
+
+### Related docs
+
+- [run](executors/run.md)
+- [Architecture](architecture.md)
 
 ## Decision 0004: `run` is the foundational executor
 
@@ -110,6 +125,11 @@ This creates a stable base for later `build`, `dev`, and `test` executors.
 - early design prioritizes reusable process execution utilities
 - specialized executors reuse shared execution logic rather than duplicate it
 
+### Related docs
+
+- [run](executors/run.md)
+- [Architecture](architecture.md)
+
 ## Decision 0005: Do not target deprecated runner behavior
 
 ### Status
@@ -134,6 +154,10 @@ That approach is misaligned with current Nx direction and would increase mainten
 - some legacy use cases may not be supported
 - the plugin remains aligned with public Nx extension points
 - maintenance burden is reduced
+
+### Related docs
+
+- [Architecture](architecture.md)
 
 ## Decision 0006: Remote cache concerns are out of scope
 
@@ -160,6 +184,10 @@ The purpose of this project is Bun integration for modern Nx, not replacing or c
 - the plugin can serve users who simply want Bun support in Nx
 - unrelated product debates do not define the project roadmap
 
+### Related docs
+
+- [Roadmap](roadmap.md)
+
 ## Decision 0007: Hooks are optional, not foundational
 
 ### Status
@@ -183,6 +211,10 @@ There is no need to introduce extra complexity before verifying whether core plu
 
 - the v1 implementation remains simpler
 - hook usage must be justified by a specific problem
+
+### Related docs
+
+- [Architecture](architecture.md)
 
 ## Decision 0008: Prefer explicit configuration over hidden inference
 
@@ -209,6 +241,12 @@ Explicit configuration is easier to debug, document, and maintain, especially in
 - users may write slightly more configuration in exchange for clarity
 - debugging becomes simpler
 
+### Related docs
+
+- [build](executors/build.md)
+- [run](executors/run.md)
+- [test](executors/test.md)
+
 ## Decision 0009: Build executor uses the Bun CLI
 
 ### Status
@@ -234,6 +272,11 @@ The CLI path is predictable, matches Bun's own command-line behavior, and keeps 
 - the build executor stays Bun-native
 - the implementation stays simple and deterministic
 
+### Related docs
+
+- [build](executors/build.md)
+- [Architecture](architecture.md)
+
 ## Decision 0010: Keep `buildTarget` as the build-first signal
 
 ### Status
@@ -258,3 +301,8 @@ Accepted
 - build-first launch flows stay explicit
 - `serve` can stay simple and readable
 - the executor can still infer the primary built file from the build target outputs
+
+### Related docs
+
+- [run](executors/run.md)
+- [build](executors/build.md)

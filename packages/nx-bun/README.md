@@ -2,6 +2,63 @@
 
 `@joadr/nx-bun` is an Nx plugin for Bun-based workflows.
 
+## Docs
+
+- [Docs index](docs/index.md)
+- [Architecture](docs/architecture.md)
+- [Decisions](docs/decisions.md)
+- [Roadmap](docs/roadmap.md)
+
+## Quickstart
+
+### Build
+
+```json
+{
+  "targets": {
+    "build": {
+      "executor": "@joadr/nx-bun:build",
+      "options": {
+        "entry": "src/main.ts",
+        "outputPath": "{workspaceRoot}/dist/apps/example-app"
+      },
+      "outputs": ["{workspaceRoot}/dist/apps/example-app"]
+    }
+  }
+}
+```
+
+### Run
+
+```json
+{
+  "targets": {
+    "serve": {
+      "executor": "@joadr/nx-bun:run",
+      "options": {
+        "buildTarget": "example-app:build",
+        "watch": true
+      }
+    }
+  }
+}
+```
+
+### Test
+
+```json
+{
+  "targets": {
+    "test": {
+      "executor": "@joadr/nx-bun:test",
+      "options": {
+        "args": ["src/render.test.tsx"]
+      }
+    }
+  }
+}
+```
+
 ## Install
 
 ```bash
