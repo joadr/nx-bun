@@ -23,6 +23,24 @@ Transpile Bun entry files for Nx projects.
 }
 ```
 
+### Standalone executable
+
+```json
+{
+  "targets": {
+    "build": {
+      "executor": "@joadr/nx-bun:build",
+      "options": {
+        "entry": "src/cli.ts",
+        "outputPath": "{workspaceRoot}/dist/apps/example-app",
+        "compile": true
+      },
+      "outputs": ["{workspaceRoot}/dist/apps/example-app"]
+    }
+  }
+}
+```
+
 ## Options
 
 | Option                  | Type                               | Required | Default     | Description                                                                     |
@@ -40,6 +58,7 @@ Transpile Bun entry files for Nx projects.
 | `naming`                | `string`                           | no       | `undefined` | Output naming pattern.                                                          |
 | `publicPath`            | `string`                           | no       | `undefined` | Runtime asset prefix.                                                           |
 | `bundle`                | `boolean`                          | no       | `false`     | Enable Bun bundling instead of transpile-only output.                           |
+| `compile`               | `boolean`                          | no       | `false`     | Build standalone Bun executables.                                               |
 | `cliArgs`               | `string[]`                         | no       | `[]`        | Extra Bun CLI flags.                                                            |
 | `generatePackageJson`   | `boolean`                          | no       | `false`     | Write a pruned `package.json` into the output directory.                        |
 | `watch`                 | `boolean`                          | no       | `false`     | Keep rebuilding on file changes.                                                |
@@ -51,6 +70,7 @@ Transpile Bun entry files for Nx projects.
 - Keep the output directory aligned with the Nx `outputs` contract.
 - Support multiple entry files for scripts and migrations.
 - Support bundling only when `bundle: true` is set.
+- Support standalone executables when `compile: true` is set.
 - Return `success: false` on build failure.
 
 ## Output Contract
@@ -58,11 +78,15 @@ Transpile Bun entry files for Nx projects.
 - `outputPath` is workspace-root-relative by default.
 - Nx `outputs` should point at the output directory, not individual files.
 - Transpiled output writes `main.js` into the resolved output directory.
+- Compiled executables are written into the resolved output directory using the entry name.
 
 ## Notes
 
 - Use `generatePackageJson` when you need a deployable manifest next to the build output.
 - Use `cliArgs` only for Bun flags not covered by structured options.
+- `bundle` and `compile` are mutually exclusive.
+- `compile` is best for standalone CLI tools and single-binary deployments.
+- `publicPath` is not supported when `compile: true` is enabled.
 
 ## Related Docs
 

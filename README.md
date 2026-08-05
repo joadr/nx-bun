@@ -6,7 +6,7 @@ This repo contains the `@joadr/nx-bun` Nx plugin and example apps used to exerci
 
 `@joadr/nx-bun` provides thin Nx executors for Bun workflows.
 
-- `build` transpiles Bun entry files.
+- `build` transpiles Bun entry files or compiles standalone executables.
 - `run` launches Bun scripts or entry files.
 - `test` runs `bun test`.
 

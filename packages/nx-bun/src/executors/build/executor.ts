@@ -26,6 +26,7 @@ export interface BuildExecutorOptions {
   naming?: string;
   publicPath?: string;
   bundle?: boolean;
+  compile?: boolean;
   watch?: boolean;
 }
 
@@ -78,6 +79,18 @@ function validateOptions(options: BuildExecutorOptions): void {
 
   if (options.bundle !== undefined && typeof options.bundle !== "boolean") {
     throw new Error('"bundle" must be a boolean when provided.');
+  }
+
+  if (options.compile !== undefined && typeof options.compile !== "boolean") {
+    throw new Error('"compile" must be a boolean when provided.');
+  }
+
+  if (options.bundle && options.compile) {
+    throw new Error('"bundle" and "compile" cannot both be enabled.');
+  }
+
+  if (options.compile && options.publicPath) {
+    throw new Error('"publicPath" is not supported when "compile" is enabled.');
   }
 }
 
@@ -270,30 +283,14 @@ function generatePackageJsonIfRequested(
   });
 }
 
-export function resolveBuildExternalDependencies(
-  options: BuildExecutorOptions,
-  context: ExecutorContext,
-): string[] {
-  if (options.target === "browser") {
-    return options.external ?? [];
-  }
+type BuildMode = "transpile" | "bundle" | "compile";
 
-  return Array.from(
-    collectRuntimeDependencies({
-      context,
-      external: options.external,
-    }).keys(),
-  );
-}
-
-export function buildCliArgs(
-  entryPoint: NormalizedEntryPoint,
-  outfile: string,
+function appendCommonBuildArgs(
+  args: string[],
   options: BuildExecutorOptions,
   externalDependencies: string[],
-): string[] {
-  const args = ["build", entryPoint.shimPath];
-
+  mode: BuildMode,
+): void {
   if (options.watch) {
     args.push("--watch");
   }
@@ -304,7 +301,11 @@ export function buildCliArgs(
     }
   }
 
-  args.push("--no-bundle");
+  if (mode === "transpile") {
+    args.push("--no-bundle");
+  } else if (mode === "compile") {
+    args.push("--compile");
+  }
 
   if (options.format) {
     args.push("--format", options.format);
@@ -322,7 +323,9 @@ export function buildCliArgs(
     args.push("--splitting");
   }
 
-  args.push("--target", options.target ?? "bun");
+  if (mode !== "compile" || options.target) {
+    args.push("--target", options.target ?? "bun");
+  }
 
   if (options.define) {
     for (const [key, value] of Object.entries(options.define)) {
@@ -341,6 +344,44 @@ export function buildCliArgs(
   if (options.cliArgs) {
     args.push(...options.cliArgs);
   }
+}
+
+export function resolveBuildExternalDependencies(
+  options: BuildExecutorOptions,
+  context: ExecutorContext,
+): string[] {
+  if (options.target === "browser") {
+    return options.external ?? [];
+  }
+
+  return Array.from(
+    collectRuntimeDependencies({
+      context,
+      external: options.external,
+    }).keys(),
+  );
+}
+
+function resolveExternalDependencies(
+  options: BuildExecutorOptions,
+  context: ExecutorContext,
+): string[] {
+  if (options.compile) {
+    return options.external ?? [];
+  }
+
+  return resolveBuildExternalDependencies(options, context);
+}
+
+export function buildCliArgs(
+  entryPoint: NormalizedEntryPoint,
+  outfile: string,
+  options: BuildExecutorOptions,
+  externalDependencies: string[],
+): string[] {
+  const args = ["build", entryPoint.shimPath];
+
+  appendCommonBuildArgs(args, options, externalDependencies, "transpile");
 
   args.push("--outfile", outfile);
 
@@ -358,53 +399,24 @@ function buildBundleCliArgs(
     ...entryPoints.map((entryPoint) => entryPoint.shimPath),
   ];
 
-  if (options.watch) {
-    args.push("--watch");
-  }
-
-  for (const external of externalDependencies) {
-    if (external) {
-      args.push("--external", external);
-    }
-  }
-
-  if (options.format) {
-    args.push("--format", options.format);
-  }
-
-  if (options.minify) {
-    args.push("--minify");
-  }
-
-  if (options.sourcemap !== undefined) {
-    args.push("--sourcemap", String(options.sourcemap));
-  }
-
-  if (options.splitting) {
-    args.push("--splitting");
-  }
-
-  args.push("--target", options.target ?? "bun");
-
-  if (options.define) {
-    for (const [key, value] of Object.entries(options.define)) {
-      args.push("--define", `${key}=${value}`);
-    }
-  }
-
-  if (options.naming) {
-    args.push("--naming", options.naming);
-  }
-
-  if (options.publicPath) {
-    args.push("--public-path", options.publicPath);
-  }
-
-  if (options.cliArgs) {
-    args.push(...options.cliArgs);
-  }
+  appendCommonBuildArgs(args, options, externalDependencies, "bundle");
 
   args.push("--outdir", outdir);
+
+  return args;
+}
+
+export function buildExecutableCliArgs(
+  entryPoint: NormalizedEntryPoint,
+  outfile: string,
+  options: BuildExecutorOptions,
+  externalDependencies: string[],
+): string[] {
+  const args = ["build", entryPoint.shimPath];
+
+  appendCommonBuildArgs(args, options, externalDependencies, "compile");
+
+  args.push("--outfile", outfile);
 
   return args;
 }
@@ -416,6 +428,44 @@ async function runCli(
   options: BuildExecutorOptions,
   externalDependencies: string[],
 ): Promise<boolean> {
+  if (options.compile) {
+    for (const entryPoint of entryPoints) {
+      const outfile = path.join(outputPath, entryPoint.name);
+      fs.mkdirSync(path.dirname(outfile), { recursive: true });
+
+      const bun = spawn(
+        "bun",
+        buildExecutableCliArgs(
+          entryPoint,
+          outfile,
+          options,
+          externalDependencies,
+        ),
+        {
+          cwd: workspaceRoot,
+          stdio: "inherit",
+        },
+      );
+
+      const success = await new Promise<boolean>((resolve) => {
+        bun.once("error", (error) => {
+          console.error(`[nx-bun] failed to start bun build: ${error.message}`);
+          resolve(false);
+        });
+
+        bun.once("exit", (code) => {
+          resolve(code === 0);
+        });
+      });
+
+      if (!success) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   if (options.bundle) {
     const bun = spawn(
       "bun",
@@ -490,10 +540,7 @@ export default async function buildExecutor(
   );
 
   const entryPoints = normalizeEntryPoints(options, projectRoot, workspaceRoot);
-  const externalDependencies = resolveBuildExternalDependencies(
-    options,
-    context,
-  );
+  const externalDependencies = resolveExternalDependencies(options, context);
   const shimRoot = fs.mkdtempSync(path.join(os.tmpdir(), "nx-bun-build-"));
   const shims = createEntryShims(entryPoints, shimRoot);
 

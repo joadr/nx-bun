@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import buildExecutor, {
   buildCliArgs,
+  buildExecutableCliArgs,
   resolveBuildExternalDependencies,
 } from "../src/executors/build/executor";
 
@@ -163,6 +164,22 @@ test("build executor can bundle when requested", async () => {
   ).toBe(true);
 });
 
+test("build executor can compile executables when requested", async () => {
+  const root = makeTempProject();
+
+  const result = await buildExecutor(
+    {
+      entry: "src/main.ts",
+      outputPath: "dist",
+      compile: true,
+    },
+    makeContext(root),
+  );
+
+  expect(result.success).toBe(true);
+  expect(fs.existsSync(path.join(root, "dist", "main"))).toBe(true);
+});
+
 test("build executor defaults CLI target to bun", () => {
   const args = buildCliArgs(
     {
@@ -180,6 +197,27 @@ test("build executor defaults CLI target to bun", () => {
 
   expect(args).toContain("--target");
   expect(args).toContain("bun");
+});
+
+test("build executor emits compile args", () => {
+  const args = buildExecutableCliArgs(
+    {
+      name: "main",
+      sourcePath: "/tmp/main.ts",
+      shimPath: "/tmp/shims/main.ts",
+    },
+    "/tmp/out/main",
+    {
+      entry: "src/main.ts",
+      outputPath: "dist",
+      compile: true,
+    },
+    [],
+  );
+
+  expect(args).toContain("--compile");
+  expect(args).toContain("--outfile");
+  expect(args).toContain("/tmp/out/main");
 });
 
 test("build executor infers runtime externals by default", () => {

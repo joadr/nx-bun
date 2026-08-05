@@ -85,6 +85,10 @@
       "type": "boolean",
       "description": "Enable Bun bundling instead of transpile-only output"
     },
+    "compile": {
+      "type": "boolean",
+      "description": "Build standalone Bun executables"
+    },
     "cliArgs": {
       "type": "array",
       "description": "Additional Bun CLI flags",
