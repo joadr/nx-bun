@@ -37,7 +37,7 @@ jobs:
 
       - name: Set publish name and version
         working-directory: packages/nx-bun
-        run: npm pkg set name=@joadr/nx-bun version=${{ inputs.version }}
+        run: npm pkg set name=@joadr/nx-bun version=${{ inputs.version }} repository.url=https://github.com/joadr/nx-bun
 
       - name: Publish to npm
         working-directory: packages/nx-bun

@@ -6,7 +6,7 @@
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/joadr/nx-bun.git"
+    "url": "https://github.com/joadr/nx-bun"
   },
   "publishConfig": {
     "access": "public"
