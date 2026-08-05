@@ -118,6 +118,9 @@ The workspace is functional and actively under development.
 
 The npm package name is `@joadr/nx-bun`.
 
+For GitHub Actions publishing, use npm Trusted Publishing instead of an `NPM_TOKEN` secret.
+Configure the package in npm to trust this repository, then run the manual `Release` workflow with a version input.
+
 Install it with:
 
 ```bash

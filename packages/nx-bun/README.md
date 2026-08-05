@@ -14,6 +14,8 @@ Or with npm:
 npm install -D @joadr/nx-bun
 ```
 
+For GitHub Actions publishing, use npm Trusted Publishing instead of an `NPM_TOKEN` secret.
+
 ## What It Provides
 
 - `build` for Bun bundles
