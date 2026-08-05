@@ -5,11 +5,22 @@
   "description": "Workspace for the nx-bun plugin and example apps",
   "license": "MIT",
   "type": "commonjs",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "prepare": "husky"
+  },
   "devDependencies": {
     "nx": "23.1.0",
     "@nx/devkit": "23.1.0",
     "@types/node": "^24.3.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.6.2",
     "typescript": "^5.9.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,cjs,mjs,json,md}": "prettier --write"
   }
 }

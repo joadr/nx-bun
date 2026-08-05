@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+BUN_BIN="$(command -v bun)"
+
+if [ -z "$BUN_BIN" ]; then
+  echo "bun is not available on PATH"
+  exit 1
+fi
+
+"$BUN_BIN" x nx run nx-bun:typecheck
