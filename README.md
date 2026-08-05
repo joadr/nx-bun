@@ -39,7 +39,7 @@ The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
 {
   "targets": {
     "build": {
-      "executor": "nx-bun:build",
+      "executor": "@joadr/nx-bun:build",
       "options": {
         "entry": "src/main.ts",
         "outputPath": "dist"
@@ -56,7 +56,7 @@ The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
 {
   "targets": {
     "serve-source": {
-      "executor": "nx-bun:run",
+      "executor": "@joadr/nx-bun:run",
       "options": {
         "entry": "src/main.ts",
         "watch": true
@@ -72,7 +72,7 @@ The plugin aims to stay thin, explicit, and aligned with modern Nx APIs.
 {
   "targets": {
     "test": {
-      "executor": "nx-bun:test",
+      "executor": "@joadr/nx-bun:test",
       "options": {
         "args": ["src/render.test.tsx"]
       }
