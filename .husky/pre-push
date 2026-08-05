@@ -1,8 +1,20 @@
 #!/usr/bin/env sh
-BUN_BIN="$(command -v bun)"
+BUN_BIN="$(command -v bun 2>/dev/null || true)"
+
+if [ -z "$BUN_BIN" ] && [ -x "$HOME/.bun/bin/bun" ]; then
+  BUN_BIN="$HOME/.bun/bin/bun"
+fi
+
+if [ -z "$BUN_BIN" ] && [ -x "/opt/homebrew/bin/bun" ]; then
+  BUN_BIN="/opt/homebrew/bin/bun"
+fi
+
+if [ -z "$BUN_BIN" ] && [ -x "/usr/local/bin/bun" ]; then
+  BUN_BIN="/usr/local/bin/bun"
+fi
 
 if [ -z "$BUN_BIN" ]; then
-  echo "bun is not available on PATH"
+  echo "bun is not available on PATH. Install Bun or add it to PATH."
   exit 1
 fi
 

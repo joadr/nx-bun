@@ -1,4 +1,4 @@
 node_modules
 .nx
 dist
-.DS_STORE
+.DS_Store
