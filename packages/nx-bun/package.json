@@ -4,6 +4,10 @@
   "description": "An Nx plugin for Bun",
   "license": "MIT",
   "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joadr/nx-bun.git"
+  },
   "publishConfig": {
     "access": "public"
   },
