@@ -18,6 +18,9 @@
   "migrations": "./migrations.json",
   "files": [
     "dist",
+    "src/executors/build/schema.json",
+    "src/executors/run/schema.json",
+    "src/executors/test/schema.json",
     "executors.json",
     "generators.json",
     "migrations.json"
