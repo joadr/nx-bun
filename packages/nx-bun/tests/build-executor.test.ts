@@ -124,7 +124,8 @@ test("build executor accepts workspace-root-relative entry paths", async () => {
   );
 
   expect(result.success).toBe(true);
-  expect(fs.existsSync(path.join(root, "dist", "main.js"))).toBe(true);
+  const output = fs.readFileSync(path.join(root, "dist", "main.js"), "utf8");
+  expect(output).toContain("hello from nested build");
 });
 
 test("build executor resolves workspaceRoot placeholders in outputPath", async () => {

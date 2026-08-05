@@ -446,12 +446,12 @@ function resolveExternalDependencies(
 }
 
 export function buildCliArgs(
-  entryPoint: NormalizedEntryPoint,
+  entryPointPath: string,
   outfile: string,
   options: BuildExecutorOptions,
   externalDependencies: string[],
 ): string[] {
-  const args = ["build", entryPoint.shimPath];
+  const args = ["build", entryPointPath];
 
   appendCommonBuildArgs(args, options, externalDependencies, "transpile");
 
@@ -461,15 +461,12 @@ export function buildCliArgs(
 }
 
 function buildBundleCliArgs(
-  entryPoints: NormalizedEntryPoint[],
+  entryPointPaths: string[],
   outdir: string,
   options: BuildExecutorOptions,
   externalDependencies: string[],
 ): string[] {
-  const args = [
-    "build",
-    ...entryPoints.map((entryPoint) => entryPoint.shimPath),
-  ];
+  const args = ["build", ...entryPointPaths];
 
   appendCommonBuildArgs(args, options, externalDependencies, "bundle");
 
@@ -479,12 +476,12 @@ function buildBundleCliArgs(
 }
 
 export function buildExecutableCliArgs(
-  entryPoint: NormalizedEntryPoint,
+  entryPointPath: string,
   outfile: string,
   options: BuildExecutorOptions,
   externalDependencies: string[],
 ): string[] {
-  const args = ["build", entryPoint.shimPath];
+  const args = ["build", entryPointPath];
 
   appendCommonBuildArgs(args, options, externalDependencies, "compile");
 
@@ -508,7 +505,7 @@ async function runCli(
       const bun = spawn(
         "bun",
         buildExecutableCliArgs(
-          entryPoint,
+          entryPoint.sourcePath,
           outfile,
           options,
           externalDependencies,
@@ -539,10 +536,18 @@ async function runCli(
   }
 
   if (options.bundle) {
+    const shimRoot = fs.mkdtempSync(path.join(os.tmpdir(), "nx-bun-build-"));
+    const bundleEntryPointPaths =
+      entryPoints.length > 1
+        ? createEntryShims(entryPoints, shimRoot).map(
+            (entryPoint) => entryPoint.shimPath,
+          )
+        : entryPoints.map((entryPoint) => entryPoint.sourcePath);
+
     const bun = spawn(
       "bun",
       buildBundleCliArgs(
-        entryPoints,
+        bundleEntryPointPaths,
         outputPath,
         options,
         externalDependencies,
@@ -554,12 +559,18 @@ async function runCli(
     );
 
     return new Promise((resolve) => {
+      const cleanup = () => {
+        fs.rmSync(shimRoot, { recursive: true, force: true });
+      };
+
       bun.once("error", (error) => {
         console.error(`[nx-bun] failed to start bun build: ${error.message}`);
+        cleanup();
         resolve(false);
       });
 
       bun.once("exit", (code) => {
+        cleanup();
         resolve(code === 0);
       });
     });
@@ -571,7 +582,12 @@ async function runCli(
 
     const bun = spawn(
       "bun",
-      buildCliArgs(entryPoint, outfile, options, externalDependencies),
+      buildCliArgs(
+        entryPoint.sourcePath,
+        outfile,
+        options,
+        externalDependencies,
+      ),
       {
         cwd: workspaceRoot,
         stdio: "inherit",
@@ -613,28 +629,22 @@ export default async function buildExecutor(
 
   const entryPoints = normalizeEntryPoints(options, projectRoot, workspaceRoot);
   const externalDependencies = resolveExternalDependencies(options, context);
-  const shimRoot = fs.mkdtempSync(path.join(os.tmpdir(), "nx-bun-build-"));
-  const shims = createEntryShims(entryPoints, shimRoot);
 
-  try {
-    if (options.generatePackageJson) {
-      generatePackageJsonIfRequested(options, context, outputPath);
-    }
-
-    const success = await runCli(
-      shims,
-      workspaceRoot,
-      outputPath,
-      options,
-      externalDependencies,
-    );
-
-    if (success) {
-      copyAssetsIfRequested(options, projectRoot, workspaceRoot, outputPath);
-    }
-
-    return { success };
-  } finally {
-    fs.rmSync(shimRoot, { recursive: true, force: true });
+  if (options.generatePackageJson) {
+    generatePackageJsonIfRequested(options, context, outputPath);
   }
+
+  const success = await runCli(
+    entryPoints,
+    workspaceRoot,
+    outputPath,
+    options,
+    externalDependencies,
+  );
+
+  if (success) {
+    copyAssetsIfRequested(options, projectRoot, workspaceRoot, outputPath);
+  }
+
+  return { success };
 }
