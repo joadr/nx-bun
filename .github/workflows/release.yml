@@ -61,7 +61,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
         run: |
-          npm publish --registry https://npm.pkg.github.com --access public --tag "$DIST_TAG"
+          NPMRC="$RUNNER_TEMP/npmrc"
+          printf '%s\n' "@joadr:registry=https://npm.pkg.github.com" "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" "always-auth=true" > "$NPMRC"
+          npm publish --userconfig "$NPMRC" --registry https://npm.pkg.github.com --access public --tag "$DIST_TAG"
 
       - name: Generate release notes
         run: |
