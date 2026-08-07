@@ -1,4 +1,4 @@
-name: Release
+name: Release script v0.0.1
 
 on:
   workflow_dispatch:
@@ -61,7 +61,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
         run: |
-          npm config set @joadr:registry https://npm.pkg.github.com
           npm publish --registry https://npm.pkg.github.com --access public --tag "$DIST_TAG"
 
       - name: Generate release notes
