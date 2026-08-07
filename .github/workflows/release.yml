@@ -1,4 +1,4 @@
-name: Release script v0.0.1
+name: Release
 
 on:
   workflow_dispatch:
