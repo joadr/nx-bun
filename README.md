@@ -93,6 +93,8 @@ npm install -D @joadr/nx-bun
 
 ## Publish
 
+The release workflow publishes `@joadr/nx-bun` to npm and GitHub Packages, and creates a GitHub Release with notes from the commit history.
+
 For GitHub Actions publishing, use npm Trusted Publishing instead of an `NPM_TOKEN` secret.
 
 ## Thanks

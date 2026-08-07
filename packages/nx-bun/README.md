@@ -73,6 +73,8 @@ npm install -D @joadr/nx-bun
 
 For GitHub Actions publishing, use npm Trusted Publishing instead of an `NPM_TOKEN` secret.
 
+The manual release workflow publishes to npm and GitHub Packages and generates a GitHub Release from commit history.
+
 ## What It Provides
 
 - `build` for Bun entry files
