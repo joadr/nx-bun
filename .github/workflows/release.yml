@@ -11,12 +11,15 @@ on:
 jobs:
   publish:
     permissions:
-      contents: read
+      contents: write
       id-token: write
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -36,8 +39,89 @@ jobs:
 
       - name: Set publish name and version
         working-directory: packages/nx-bun
-        run: npm pkg set name=@joadr/nx-bun version=${{ inputs.version }} repository.url=https://github.com/joadr/nx-bun
+        run: |
+          VERSION="${{ inputs.version }}"
+          VERSION="${VERSION#v}"
+          npm pkg set name=@joadr/nx-bun version="$VERSION" repository.url=https://github.com/joadr/nx-bun
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "TAG=v$VERSION" >> "$GITHUB_ENV"
 
       - name: Publish to npm
         working-directory: packages/nx-bun
         run: npm publish --access public --provenance
+
+      - name: Publish to GitHub Packages
+        working-directory: packages/nx-bun
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          npm config set @joadr:registry https://npm.pkg.github.com
+          npm publish --registry https://npm.pkg.github.com --access public
+
+      - name: Generate release notes
+        run: |
+          PREV_TAG="$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)"
+          if [ -n "$PREV_TAG" ]; then
+            export RANGE="$PREV_TAG..HEAD"
+          else
+            export RANGE="HEAD"
+          fi
+
+          node <<'NODE'
+          const { execSync } = require('node:child_process');
+          const fs = require('node:fs');
+
+          const range = process.env.RANGE;
+          const raw = execSync(`git log --no-merges --pretty=format:%s ${JSON.stringify(range)}`, { encoding: 'utf8' }).trim();
+          const commits = raw ? raw.split('\n').filter(Boolean) : [];
+          const sections = new Map([
+            ['feat', 'Features'],
+            ['fix', 'Fixes'],
+            ['refactor', 'Refactors'],
+            ['docs', 'Docs'],
+            ['build', 'Build'],
+            ['ci', 'CI'],
+            ['test', 'Tests'],
+            ['chore', 'Chores'],
+          ]);
+          const order = ['Features', 'Fixes', 'Refactors', 'Docs', 'Build', 'CI', 'Tests', 'Chores', 'Other'];
+          const buckets = new Map();
+
+          for (const message of commits) {
+            const match = message.match(/^([a-z]+)(?:\(.+\))?:\s*(.+)$/i);
+            const type = match ? match[1].toLowerCase() : 'other';
+            const section = sections.get(type) || 'Other';
+            if (!buckets.has(section)) {
+              buckets.set(section, []);
+            }
+            buckets.get(section).push(match ? match[2] : message);
+          }
+
+          let output = '# Changes\n';
+          for (const section of order) {
+            const items = buckets.get(section);
+            if (!items || !items.length) {
+              continue;
+            }
+            output += `\n## ${section}\n`;
+            for (const item of items) {
+              output += `- ${item}\n`;
+            }
+          }
+
+          if (output === '# Changes\n') {
+            output += '\n- No commits found.\n';
+          }
+
+          fs.writeFileSync('release-notes.md', output);
+          NODE
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --latest \
+            --notes-file release-notes.md
