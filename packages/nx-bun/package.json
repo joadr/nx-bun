@@ -26,10 +26,10 @@
     "migrations.json"
   ],
   "scripts": {
-    "build": "bunx tsc -p tsconfig.json",
+    "build": "bun x tsc -p tsconfig.json",
     "clean": "rm -rf dist",
     "test": "bun test",
-    "typecheck": "bunx tsc -p tsconfig.json --noEmit"
+    "typecheck": "bun x tsc -p tsconfig.json --noEmit"
   },
   "keywords": [
     "nx",
