@@ -103,5 +103,5 @@ Thanks to [Jordan-Hall's `nx-bun`](https://github.com/Jordan-Hall/nx-bun) for in
 
 ## Donations
 
-ETH: `0xA397c72a9b714A5990C8231388Fc944954D21888`
-EVM compatible: `0xA397c72a9b714A5990C8231388Fc944954D21888`
+- ETH: `0xA397c72a9b714A5990C8231388Fc944954D21888`
+- EVM compatible: `0xA397c72a9b714A5990C8231388Fc944954D21888`
