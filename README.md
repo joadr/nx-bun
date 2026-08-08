@@ -100,3 +100,7 @@ For GitHub Actions publishing, use npm Trusted Publishing instead of an `NPM_TOK
 ## Thanks
 
 Thanks to [Jordan-Hall's `nx-bun`](https://github.com/Jordan-Hall/nx-bun) for inspiring this project.
+
+## Donations
+
+ETH (EVM compatible): `0xA397c72a9b714A5990C8231388Fc944954D21888`
